@@ -2,9 +2,9 @@
 
 const char* window_title = "GLFW Starter Project";
 Cube cube(5.0f);
-OBJObject bunny = OBJObject("D:/Users/Pedro/Source/Repos/CSE167StarterCode/obj/bunny.obj");
-OBJObject bear = OBJObject("D:/Users/Pedro/Source/Repos/CSE167StarterCode/obj/bear.obj");
-OBJObject dragon = OBJObject("D:/Users/Pedro/Source/Repos/CSE167StarterCode/obj/dragon.obj");
+OBJObject bunny = OBJObject("../obj/bunny.obj");
+OBJObject bear = OBJObject("../obj/bear.obj");
+OBJObject dragon = OBJObject("../obj/dragon.obj");
 OBJObject *currentOBJ = &bunny;
 float pointSize = 1.0f;
 int Window::width;
@@ -68,8 +68,8 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 	glLoadIdentity();
 	// Set the perspective of the projection viewing frustum
 	gluPerspective(60.0, double(width) / (double)height, 1.0, 1000.0);
-	// Move camera back 20 units so that it looks at the origin (or else it's in the origin)
-	glTranslatef(0, 0, -20);
+	// Move camera back 2.6 units so that it looks at the origin (or else it's in the origin)
+	glTranslatef(0, 0, -2.6);
 }
 
 void Window::idle_callback()
@@ -123,6 +123,14 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 				pointSize--;
 			}
 			glPointSize(pointSize);
+			break;
+		case GLFW_KEY_C:
+			if (mods == GLFW_MOD_SHIFT) {
+				(*currentOBJ).changeColor(0);
+			}
+			else {
+				(*currentOBJ).changeColor(1);
+			}
 			break;
 		}
 	}

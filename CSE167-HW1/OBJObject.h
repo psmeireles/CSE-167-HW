@@ -20,6 +20,7 @@ private:
 std::vector<unsigned int> indices;
 std::vector<glm::vec3> vertices;
 std::vector<glm::vec3> normals;
+std::vector<glm::vec3> colors;
 glm::mat4 toWorld;
 
 float angle;
@@ -35,6 +36,7 @@ public:
 	void parse(const char* filepath);
 	void draw();
 	void update();
+	void changeColor(GLint option);
 
 	void spin(float);
 };

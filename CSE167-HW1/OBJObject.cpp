@@ -5,9 +5,6 @@ OBJObject::OBJObject(const char *filepath)
 {
 	angle = 0.0f;
 	toWorld = glm::mat4(1.0f);
-	vertices.reserve(10000);
-	indices.reserve(10000);
-	normals.reserve(10000);
 	min_x = std::numeric_limits<float>::max();
 	min_y = std::numeric_limits<float>::max();
 	min_z = std::numeric_limits<float>::max();
@@ -20,7 +17,6 @@ OBJObject::OBJObject(const char *filepath)
 
 void OBJObject::parse(const char *filepath) 
 {
-	//TODO parse the OBJ file
 	// Populate the face indices, vertices, and normals vectors with the OBJ Object data
 	char c1, c2;
 	float x, y, z, r, g, b;
@@ -40,6 +36,7 @@ void OBJObject::parse(const char *filepath)
 			if (c2 == 'n') {
 				fscanf(fp, " %f %f %f", &x, &y, &z);
 				this->normals.push_back(glm::vec3(x, y, z));
+				this->colors.push_back(glm::vec3((x + 1) / 2, (y + 1) / 2, (z + 1) / 2));
 			}
 			else if (c2 == ' ') {
 				fscanf(fp, " %f %f %f %f %f %f", &x, &y, &z, &r, &g, &b);
@@ -53,6 +50,8 @@ void OBJObject::parse(const char *filepath)
 	fclose(fp);
 
 	shiftAndResizeModel();
+	printf("%f, %f, %f\n", max_x, max_y, max_z);
+	printf("%f, %f, %f\n", min_x, min_y, min_z);
 }
 
 void OBJObject::draw() 
@@ -68,7 +67,7 @@ void OBJObject::draw()
 	for (unsigned int i = 0; i < vertices.size(); ++i) 
 	{
 		// Normalizing colors
-		glColor3f((normals[i].x + 1) / 2, (normals[i].y + 1) / 2, (normals[i].z + 1) / 2);
+		glColor3f(colors[i].x, colors[i].y, colors[i].z);
 
 		glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
 	}
@@ -105,16 +104,20 @@ void OBJObject::updateMinMaxCoordinates(float x, float y, float z)
 
 void OBJObject::shiftAndResizeModel()
 {
-	float max_abs_x = abs(max_x) > abs(min_x) ? abs(max_x) : abs(min_x);
-	float max_abs_y = abs(max_y) > abs(min_y) ? abs(max_y) : abs(min_y);
-	float max_abs_z = abs(max_z) > abs(min_z) ? abs(max_z) : abs(min_z);
 	float avg_x = (max_x + min_x) / 2;
 	float avg_y = (max_y + min_y) / 2;
 	float avg_z = (max_z + min_z) / 2;
 
-	max_abs_x -= avg_x;
-	max_abs_y -= avg_y;
-	max_abs_z -= avg_z;
+	max_x -= avg_x;
+	min_x -= avg_x;
+	max_y -= avg_y;
+	min_y -= avg_y;
+	max_z -= avg_z;
+	min_z -= avg_z;
+
+	float max_abs_x = abs(max_x) > abs(min_x) ? abs(max_x) : abs(min_x);
+	float max_abs_y = abs(max_y) > abs(min_y) ? abs(max_y) : abs(min_y);
+	float max_abs_z = abs(max_z) > abs(min_z) ? abs(max_z) : abs(min_z);
 
 	float max_coord = max_abs_x;
 	if (max_coord < max_abs_y) {
@@ -126,10 +129,32 @@ void OBJObject::shiftAndResizeModel()
 
 	for (int i = 0; i < vertices.size(); i++) {
 		vertices[i].x -= avg_x;
-		vertices[i].x /= max_coord/5;
+		vertices[i].x /= max_coord;
 		vertices[i].y -= avg_y;
-		vertices[i].y /= max_coord/5;
+		vertices[i].y /= max_coord;
 		vertices[i].z -= avg_z;
-		vertices[i].z /= max_coord/5;
+		vertices[i].z /= max_coord;
+	}
+
+	max_x /= max_coord;
+	min_x /= max_coord;
+	max_y /= max_coord;
+	min_y /= max_coord;
+	max_z /= max_coord;
+	min_z /= max_coord;
+}
+
+void OBJObject::changeColor(GLint option) {
+	for (int i = 0; i < colors.size(); i++) {
+		if (option == 0) {
+			colors[i].x = normals[i].x;
+			colors[i].y = normals[i].y;
+			colors[i].z = normals[i].z;
+		}
+		else {
+			colors[i].x = vertices[i].x;
+			colors[i].y = vertices[i].y;
+			colors[i].z = vertices[i].z;
+		}
 	}
 }
