@@ -50,8 +50,6 @@ void OBJObject::parse(const char *filepath)
 	fclose(fp);
 
 	shiftAndResizeModel();
-	printf("%f, %f, %f\n", max_x, max_y, max_z);
-	printf("%f, %f, %f\n", min_x, min_y, min_z);
 }
 
 void OBJObject::draw() 

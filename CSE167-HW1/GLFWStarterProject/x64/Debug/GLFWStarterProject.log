@@ -1,0 +1,6 @@
+﻿  OBJObject.cpp
+  Window.cpp
+c:\users\pedro\desktop\ucsd\cse167\cse-167-hw\cse167-hw1\window.cpp(72): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+  main.cpp
+  Generating Code...
+  GLFWStarterProject.vcxproj -> C:\Users\Pedro\Desktop\UCSD\CSE167\CSE-167-HW\CSE167-HW1\x64\Debug\CSE167-HW1.exe
