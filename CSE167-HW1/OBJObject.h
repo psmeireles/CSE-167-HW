@@ -21,12 +21,16 @@ std::vector<unsigned int> indices;
 std::vector<glm::vec3> vertices;
 std::vector<glm::vec3> normals;
 std::vector<glm::vec3> colors;
+std::vector<glm::vec3> aux;
+std::vector<glm::vec3> steps;
 glm::mat4 toWorld;
 
-float angle;
-float min_x, max_x;
-float min_y, max_y;
-float min_z, max_z;
+GLint animationCounter;
+GLfloat angle;
+GLfloat min_x, max_x;
+GLfloat min_y, max_y;
+GLfloat min_z, max_z;
+
 void updateMinMaxCoordinates(float x, float y, float z);
 void shiftAndResizeModel();
 
@@ -39,6 +43,7 @@ public:
 	void changeColor(GLint option);
 
 	void spin(float);
+	void restartModel();
 };
 
 #endif
