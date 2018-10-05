@@ -45,7 +45,7 @@ GLFWwindow* Window::create_window(int width, int height)
 	glfwMakeContextCurrent(window);
 
 	// Set swap interval to 1
-	glfwSwapInterval(1);
+	glfwSwapInterval(1006);
 
 	// Call the resize callback to make sure things get drawn immediately
 	Window::resize_callback(window, width, height);
@@ -107,12 +107,15 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		case GLFW_KEY_F1:
+			(*currentOBJ).restartModel();
 			currentOBJ = &bunny;
 			break;
 		case GLFW_KEY_F2:
+			(*currentOBJ).restartModel();
 			currentOBJ = &bear;
 			break;
 		case GLFW_KEY_F3:
+			(*currentOBJ).restartModel();
 			currentOBJ = &dragon;
 			break;
 		case GLFW_KEY_P:

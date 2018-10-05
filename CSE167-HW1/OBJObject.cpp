@@ -1,6 +1,6 @@
 #include "OBJObject.h"
 #include <limits>
-#include <math.h>
+
 OBJObject::OBJObject(const char *filepath) 
 {
 	angle = 0.0f;
@@ -11,7 +11,7 @@ OBJObject::OBJObject(const char *filepath)
 	max_x = std::numeric_limits<float>::lowest();
 	max_y = std::numeric_limits<float>::lowest();
 	max_z = std::numeric_limits<float>::lowest();
-
+	animationCounter = 0;
 	parse(filepath);
 }
 
@@ -19,8 +19,8 @@ void OBJObject::parse(const char *filepath)
 {
 	// Populate the face indices, vertices, and normals vectors with the OBJ Object data
 	char c1, c2;
-	float x, y, z, r, g, b;
-	int i = 0;
+	GLfloat x, y, z, r, g, b, aux_x, aux_y, aux_z;
+
 	FILE *fp = fopen(filepath, "rb");
 	if (fp == NULL) {
 		printf("error loading file\n");
@@ -36,13 +36,17 @@ void OBJObject::parse(const char *filepath)
 			if (c2 == 'n') {
 				fscanf(fp, " %f %f %f", &x, &y, &z);
 				this->normals.push_back(glm::vec3(x, y, z));
-				this->colors.push_back(glm::vec3((x + 1) / 2, (y + 1) / 2, (z + 1) / 2));
+				this->colors.push_back(glm::vec3((x + 1.0f) / 2.0f, (y + 1.0f) / 2.0f, (z + 1.0f) / 2.0f));
 			}
 			else if (c2 == ' ') {
 				fscanf(fp, " %f %f %f %f %f %f", &x, &y, &z, &r, &g, &b);
-				this->vertices.push_back(glm::vec3(x, y, z));
+				this->aux.push_back(glm::vec3(x, y, z));
 				updateMinMaxCoordinates(x, y, z);
-				i++;
+
+				aux_x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 4.0f - 2.0f;
+				aux_y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 4.0f - 2.0f;
+				aux_z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 4.0f - 2.0f;
+				this->vertices.push_back(glm::vec3(aux_x, aux_y, aux_z));
 			}
 		}
 		c1 = fgetc(fp);
@@ -64,9 +68,7 @@ void OBJObject::draw()
 	// Loop through all the vertices of this OBJ Object and render them
 	for (unsigned int i = 0; i < vertices.size(); ++i) 
 	{
-		// Normalizing colors
 		glColor3f(colors[i].x, colors[i].y, colors[i].z);
-
 		glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
 	}
 	glEnd();
@@ -78,6 +80,14 @@ void OBJObject::draw()
 
 void OBJObject::update()
 {
+	if (animationCounter != 100) {
+		for (int i = 0; i < vertices.size(); i++) {
+			vertices[i].x += steps[i].x;
+			vertices[i].y += steps[i].y;
+			vertices[i].z += steps[i].z;
+		}
+		animationCounter++;
+	}
 	spin(1.0f);
 }
 
@@ -102,10 +112,12 @@ void OBJObject::updateMinMaxCoordinates(float x, float y, float z)
 
 void OBJObject::shiftAndResizeModel()
 {
-	float avg_x = (max_x + min_x) / 2;
-	float avg_y = (max_y + min_y) / 2;
-	float avg_z = (max_z + min_z) / 2;
+	// Find center of model
+	GLfloat avg_x = (max_x + min_x) / 2.0f;
+	GLfloat avg_y = (max_y + min_y) / 2.0f;
+	GLfloat avg_z = (max_z + min_z) / 2.0f;
 
+	// Shifting max and mins
 	max_x -= avg_x;
 	min_x -= avg_x;
 	max_y -= avg_y;
@@ -113,11 +125,12 @@ void OBJObject::shiftAndResizeModel()
 	max_z -= avg_z;
 	min_z -= avg_z;
 
-	float max_abs_x = abs(max_x) > abs(min_x) ? abs(max_x) : abs(min_x);
-	float max_abs_y = abs(max_y) > abs(min_y) ? abs(max_y) : abs(min_y);
-	float max_abs_z = abs(max_z) > abs(min_z) ? abs(max_z) : abs(min_z);
+	// Finding max coordinate
+	GLfloat max_abs_x = abs(max_x) > abs(min_x) ? abs(max_x) : abs(min_x);
+	GLfloat max_abs_y = abs(max_y) > abs(min_y) ? abs(max_y) : abs(min_y);
+	GLfloat max_abs_z = abs(max_z) > abs(min_z) ? abs(max_z) : abs(min_z);
 
-	float max_coord = max_abs_x;
+	GLfloat max_coord = max_abs_x;
 	if (max_coord < max_abs_y) {
 		max_coord = max_abs_y;
 	}
@@ -125,15 +138,18 @@ void OBJObject::shiftAndResizeModel()
 		max_coord = max_abs_z;
 	}
 
+	// Shifting and resizing all vertices
 	for (int i = 0; i < vertices.size(); i++) {
-		vertices[i].x -= avg_x;
-		vertices[i].x /= max_coord;
-		vertices[i].y -= avg_y;
-		vertices[i].y /= max_coord;
-		vertices[i].z -= avg_z;
-		vertices[i].z /= max_coord;
+		aux[i].x -= avg_x;
+		aux[i].x /= max_coord;
+		aux[i].y -= avg_y;
+		aux[i].y /= max_coord;
+		aux[i].z -= avg_z;
+		aux[i].z /= max_coord;
+		this->steps.push_back(glm::vec3((aux[i].x - vertices[i].x) / 100.0f, (aux[i].y - vertices[i].y) / 100.0f, (aux[i].z - vertices[i].z) / 100.0f));
 	}
 
+	// Resizing max and mins
 	max_x /= max_coord;
 	min_x /= max_coord;
 	max_y /= max_coord;
@@ -155,4 +171,13 @@ void OBJObject::changeColor(GLint option) {
 			colors[i].z = vertices[i].z;
 		}
 	}
+}
+
+void OBJObject::restartModel() {
+	for (int i = 0; i < vertices.size(); i++) {
+		vertices[i].x -= steps[i].x * animationCounter;
+		vertices[i].y -= steps[i].y * animationCounter;
+		vertices[i].z -= steps[i].z * animationCounter;
+	}
+	animationCounter = 0;
 }
