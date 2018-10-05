@@ -47,7 +47,6 @@ void OBJObject::parse(const char *filepath)
 				aux_y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 4.0f - 2.0f;
 				aux_z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * 4.0f - 2.0f;
 				this->vertices.push_back(glm::vec3(aux_x, aux_y, aux_z));
-				this->steps.push_back(glm::vec3((x - aux_x) / 100.0f, (y - aux_y) / 100.0f, (z - aux_z) / 100.0f));
 			}
 		}
 		c1 = fgetc(fp);
@@ -141,12 +140,13 @@ void OBJObject::shiftAndResizeModel()
 
 	// Shifting and resizing all vertices
 	for (int i = 0; i < vertices.size(); i++) {
-		vertices[i].x -= avg_x;
-		vertices[i].x /= max_coord;
-		vertices[i].y -= avg_y;
-		vertices[i].y /= max_coord;
-		vertices[i].z -= avg_z;
-		vertices[i].z /= max_coord;
+		aux[i].x -= avg_x;
+		aux[i].x /= max_coord;
+		aux[i].y -= avg_y;
+		aux[i].y /= max_coord;
+		aux[i].z -= avg_z;
+		aux[i].z /= max_coord;
+		this->steps.push_back(glm::vec3((aux[i].x - vertices[i].x) / 100.0f, (aux[i].y - vertices[i].y) / 100.0f, (aux[i].z - vertices[i].z) / 100.0f));
 	}
 
 	// Resizing max and mins
