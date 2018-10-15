@@ -1,5 +1,6 @@
 #include "OBJObject.h"
 #include "Window.h"
+#include "Light.h"
 
 OBJObject::OBJObject(char* filepath)
 {
@@ -11,6 +12,7 @@ OBJObject::OBJObject(char* filepath)
 	max_y = std::numeric_limits<float>::lowest();
 	max_z = std::numeric_limits<float>::lowest();
 
+	lightColor = glm::vec3(1, 1, 1);
 	parse(filepath);
 
 	// Create array object and buffers. Remember to delete your buffers when the object is destroyed!
@@ -47,6 +49,20 @@ OBJObject::OBJObject(char* filepath)
 	// Unbind the VAO now so we don't accidentally tamper with it.
 	// NOTE: You must NEVER unbind the element array buffer associated with a VAO!
 	glBindVertexArray(0);
+
+	unsigned int lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+	// we only need to bind to the VBO, the container's VBO's data already contains the correct data.
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// set the vertex attributes (only position data for our lamp)
+	glVertexAttribPointer(0,// This first parameter x should be the same as the number passed into the line "layout (location = x)" in the vertex shader. In this case, it's 0. Valid values are 0 to GL_MAX_UNIFORM_LOCATIONS.
+		3, // This second line tells us how any components there are per vertex. In this case, it's 3 (we have an x, y, and z component)
+		GL_FLOAT, // What type these components are
+		GL_FALSE, // GL_TRUE means the values should be normalized. GL_FALSE means they shouldn't
+		sizeof(glm::vec3), // Offset between consecutive indices. Since each of our vertices have 3 floats, they should have the size of 3 floats in between
+		(GLvoid*)0); // Offset of the first vertex's component. In our case it's 0 since we don't pad the vertices array with anything.
+	glEnableVertexAttribArray(0);
 }
 
 OBJObject::~OBJObject()
@@ -60,14 +76,19 @@ OBJObject::~OBJObject()
 
 void OBJObject::draw(GLuint shaderProgram)
 { 
+	glUseProgram(shaderProgram);
+
 	// Calculate the combination of the model and view (camera inverse) matrices
 	glm::mat4 modelview = Window::V * toWorld;
+
 	// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 	// Get the location of the uniform variables "projection" and "modelview"
+	uLightColor = glGetUniformLocation(shaderProgram, "lightColor");
 	uProjection = glGetUniformLocation(shaderProgram, "projection");
 	uModelview = glGetUniformLocation(shaderProgram, "modelview");
 	// Now send these values to the shader program
+	glUniform3fv(uLightColor, 1, &Light::lightColor[0]);
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
 	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
 	// Now draw the OBJObject. We simply need to bind the VAO associated with it.
@@ -80,7 +101,7 @@ void OBJObject::draw(GLuint shaderProgram)
 
 void OBJObject::update()
 {
-	spin(1.0f);
+	//spin(1.0f);
 }
 
 void OBJObject::spin(float deg)

@@ -11,13 +11,17 @@
 #endif
 #include <GLFW/glfw3.h>
 #include "OBJObject.h"
+#include "Light.h"
 #include "shader.h"
+#include <glm/gtc/quaternion.hpp>
 
 class Window
 {
 public:
 	static int width;
 	static int height;
+	static bool movement;
+	static glm::vec3 lastPoint;
 	static glm::mat4 P; // P for projection
 	static glm::mat4 V; // V for view
 	static void initialize_objects();
@@ -30,7 +34,7 @@ public:
 	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 	static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
-
+	static glm::vec3 trackBallMapping(glm::vec2 point);
 };
 
 #endif

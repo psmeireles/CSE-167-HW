@@ -35,6 +35,8 @@ public:
 
 	glm::mat4 toWorld;
 
+	glm::vec3 lightColor;
+
 	void draw(GLuint);
 	void update();
 	void spin(float);
@@ -44,7 +46,7 @@ public:
 
 	// These variables are needed for the shader program
 	GLuint VBO, VAO, EBO;
-	GLuint uProjection, uModelview;
+	GLuint uProjection, uModelview, uLightColor;
 };
 
 #endif

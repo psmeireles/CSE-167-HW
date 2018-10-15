@@ -19,18 +19,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Light.h" />
     <ClInclude Include="..\OBJObject.h" />
     <ClInclude Include="..\main.h" />
     <ClInclude Include="..\shader.h" />
     <ClInclude Include="..\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Light.cpp" />
     <ClCompile Include="..\OBJObject.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\shader.cpp" />
     <ClCompile Include="..\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\lightShader.frag" />
+    <None Include="..\lightShader.vert" />
     <None Include="..\shader.frag" />
     <None Include="..\shader.vert" />
     <None Include="packages.config" />

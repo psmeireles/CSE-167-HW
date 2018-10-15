@@ -2,20 +2,20 @@
 
 const char* window_title = "GLFW Starter Project";
 OBJObject *bunny, *bear, *dragon, *currentOBJ;
-GLint shaderProgram;
-
-// On some systems you need to change this to the absolute path
-#define VERTEX_SHADER_PATH "../shader.vert"
-#define FRAGMENT_SHADER_PATH "../shader.frag"
+Light *light;
+GLint objShader, lightShader;
 
 // Default camera parameters
-glm::vec3 cam_pos(0.0f, 0.0f, 2.6f);		// e  | Position of camera
+glm::vec3 cam_pos(0.0f, 0.0f, 10.0f);		// e  | Position of camera
 glm::vec3 cam_look_at(0.0f, 0.0f, 0.0f);	// d  | This is where the camera looks at
 glm::vec3 cam_up(0.0f, 1.0f, 0.0f);			// up | What orientation "up" is
 
 int Window::width;
 int Window::height;
 
+bool Window::movement = false;
+
+glm::vec3 Window::lastPoint;
 glm::mat4 Window::P;
 glm::mat4 Window::V;
 
@@ -26,8 +26,11 @@ void Window::initialize_objects()
 	dragon = new OBJObject("../obj/dragon.obj");
 	currentOBJ = bunny;
 
+	light = new Light();
+
 	// Load the shader program. Make sure you have the correct filepath up top
-	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
+	objShader = LoadShaders("../shader.vert", "../shader.frag");
+	lightShader = LoadShaders("../lightShader.vert", "../lightShader.frag");
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -36,7 +39,8 @@ void Window::clean_up()
 	delete(bunny);
 	delete(bear);
 	delete(dragon);
-	glDeleteProgram(shaderProgram);
+	glDeleteProgram(objShader);
+	glDeleteProgram(lightShader);
 }
 
 GLFWwindow* Window::create_window(int width, int height)
@@ -114,11 +118,10 @@ void Window::display_callback(GLFWwindow* window)
 	// Clear the color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Use the shader of programID
-	glUseProgram(shaderProgram);
-	
 	// Render the cube
-	currentOBJ->draw(shaderProgram);
+	currentOBJ->draw(objShader);
+	light->draw(lightShader);
+	
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
@@ -152,7 +155,18 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 
 void Window::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
+	if (button == GLFW_MOUSE_BUTTON_LEFT) {
+		if (action == GLFW_PRESS) {
+			movement = true;
 
+			double xpos, ypos;
+			glfwGetCursorPos(window, &xpos, &ypos);
+			lastPoint = trackBallMapping(glm::vec2(xpos, ypos));
+		}
+		else if (action == GLFW_RELEASE) {
+			movement = false;
+		}
+	}
 }
 
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -162,4 +176,39 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void Window::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
+	glm::vec3 direction;
+	float rot_angle;
+	glm::vec3 curPoint;
+	glm::vec2 point = glm::vec2(xpos, ypos);
+	if (movement) {
+		curPoint = trackBallMapping(point);
+		direction = curPoint - lastPoint;
+		float velocity = direction.length();
+
+		if (velocity > 0.0001) {
+			glm::vec3 rotAxis;
+			rot_angle = 0.1;
+			rotAxis = glm::cross(lastPoint, curPoint);
+			glm::mat4 rotMatrix = glm::rotate(glm::mat4(1.0f), rot_angle, rotAxis);
+			currentOBJ->toWorld = rotMatrix*currentOBJ->toWorld;
+		}
+
+		lastPoint = curPoint;
+	}
+}
+
+glm::vec3 Window::trackBallMapping(glm::vec2 point)
+{
+	glm::vec3 v;
+	float d;
+	v.x = (2.0*point.x - width) / width;
+	v.y = (height - 2.0*point.y) / height;
+	v.z = 0;
+	d = v.length();
+	d = (d < 1.0) ? d : sqrt(0.5);
+	v.z = sqrtf(1.001 - d * d);
+	v.x /= v.length();
+	v.y /= v.length();
+	v.z /= v.length();
+	return v;
 }
