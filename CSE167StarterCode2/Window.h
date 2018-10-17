@@ -13,6 +13,7 @@
 #include "OBJObject.h"
 #include "Light.h"
 #include "shader.h"
+#include "Material.h"
 #include <glm/gtc/quaternion.hpp>
 
 class Window
@@ -21,6 +22,7 @@ public:
 	static int width;
 	static int height;
 	static bool movement;
+	static glm::vec3 camPos;
 	static glm::vec3 lastPoint;
 	static glm::mat4 P; // P for projection
 	static glm::mat4 V; // V for view

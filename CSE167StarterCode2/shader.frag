@@ -1,20 +1,38 @@
 #version 330 core
 // This is a sample fragment shader.
 
-// Inputs to the fragment shader are the outputs of the same name from the vertex shader.
-// Note that you do not have access to the vertex shader's default output, gl_Position.
-in float sampleExtraOutput;
+in vec3 Normal;
+in vec3 FragPos;
 
 // You can output many things. The first vec4 type output determines the color of the fragment
-out vec4 color;
+out vec4 FragColor;
 
+
+uniform vec3 lightPos;
 uniform vec3 lightColor;
+uniform vec3 objectColor;
+uniform vec3 viewPos;
+
 
 void main()
 {
 	float ambientStr = 0.1;
-	vec3 ambient = ambientStr*10*lightColor;
-	vec3 result = ambient*vec3(1.0f, 0.41f, 0.7f);
+	vec3 ambient = ambientStr * lightColor;
+
+	vec3 norm = normalize(Normal);
+	vec3 lightDir = normalize(lightPos - FragPos);
+	float diff = max(dot(norm, lightDir), 0.0);
+	vec3 diffuse = diff * lightColor;
+
+	float specularStrength = 0.5;
+	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 reflectDir = reflect(-lightDir, norm);  
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	vec3 specular = specularStrength * spec * lightColor;  
+
+	vec3 result = (ambient + diffuse + specular) * objectColor;
+
     // Color everything a hot pink color. An alpha of 1.0f means it is not transparent.
-    color = vec4(result, sampleExtraOutput);
+    FragColor = vec4(result, 1.0f);
+	
 }

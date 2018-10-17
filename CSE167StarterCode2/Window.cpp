@@ -4,6 +4,7 @@ const char* window_title = "GLFW Starter Project";
 OBJObject *bunny, *bear, *dragon, *currentOBJ;
 Light *light;
 GLint objShader, lightShader;
+glm::vec3 Window::camPos;
 
 // Default camera parameters
 glm::vec3 cam_pos(0.0f, 0.0f, 10.0f);		// e  | Position of camera
@@ -27,6 +28,8 @@ void Window::initialize_objects()
 	currentOBJ = bunny;
 
 	light = new Light();
+
+	camPos = glm::vec3(0.0f, 0.0f, 10.0f);
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	objShader = LoadShaders("../shader.vert", "../shader.frag");

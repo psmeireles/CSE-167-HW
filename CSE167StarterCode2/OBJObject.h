@@ -15,17 +15,19 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include "Material.h"
 
 class OBJObject
 {
 private:
-	std::vector<GLuint> indices2;
-	std::vector<glm::vec3> vertices2;
-	std::vector<glm::vec3> normals2;
+	std::vector<GLuint> indices;
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
 	std::vector<glm::vec3> colors;
 	GLfloat min_x, max_x;
 	GLfloat min_y, max_y;
 	GLfloat min_z, max_z;
+	Material material;
 
 	void updateMinMaxCoordinates(float x, float y, float z);
 	void shiftAndResizeModel();
@@ -35,7 +37,7 @@ public:
 
 	glm::mat4 toWorld;
 
-	glm::vec3 lightColor;
+	glm::vec3 objectColor;
 
 	void draw(GLuint);
 	void update();
@@ -45,8 +47,9 @@ public:
 
 
 	// These variables are needed for the shader program
-	GLuint VBO, VAO, EBO;
-	GLuint uProjection, uModelview, uLightColor;
+	GLuint VBO, VAO, EBO, normalBuffer;
+	GLuint uProjection, uModel, uView, uLightPos, uLightColor, uObjectColor, uViewPos, uMAmbient;
+	GLuint uMDiffuse, uMSpecular, uMShininess;
 };
 
 #endif
