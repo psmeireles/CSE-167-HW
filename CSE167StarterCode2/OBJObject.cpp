@@ -2,6 +2,8 @@
 #include "Window.h"
 #include "Light.h"
 
+int OBJObject::normalColor = 0;
+
 OBJObject::OBJObject(char* filepath, Material material)
 {
 	toWorld = glm::mat4(1.0f);
@@ -12,7 +14,6 @@ OBJObject::OBJObject(char* filepath, Material material)
 	max_y = std::numeric_limits<float>::lowest();
 	max_z = std::numeric_limits<float>::lowest();
 	this->material = material;
-	normalColor = 0;
 
 	parse(filepath);
 

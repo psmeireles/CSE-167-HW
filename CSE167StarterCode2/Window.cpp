@@ -153,7 +153,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			currentOBJ = dragon;
 			break;
 		case GLFW_KEY_N:
-			currentOBJ->normalColor = (currentOBJ->normalColor + 1) % 2;
+			OBJObject::normalColor = (OBJObject::normalColor + 1) % 2;
 		}		
 	}
 }

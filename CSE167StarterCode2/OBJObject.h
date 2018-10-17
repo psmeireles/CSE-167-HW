@@ -37,7 +37,7 @@ public:
 
 	glm::mat4 toWorld;
 
-	int normalColor;
+	static int normalColor;
 
 	void draw(GLuint);
 	void update();
