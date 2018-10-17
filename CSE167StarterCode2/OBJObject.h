@@ -32,12 +32,12 @@ private:
 	void updateMinMaxCoordinates(float x, float y, float z);
 	void shiftAndResizeModel();
 public:
-	OBJObject(char* filepath);
+	OBJObject(char* filepath, Material material);
 	~OBJObject();
 
 	glm::mat4 toWorld;
 
-	glm::vec3 objectColor;
+	int normalColor;
 
 	void draw(GLuint);
 	void update();
@@ -50,6 +50,7 @@ public:
 	GLuint VBO, VAO, EBO, normalBuffer;
 	GLuint uProjection, uModel, uView, uLightPos, uLightColor, uObjectColor, uViewPos, uMAmbient;
 	GLuint uMDiffuse, uMSpecular, uMShininess;
+	GLuint uNormalColor;
 };
 
 #endif

@@ -2,7 +2,7 @@
 #include "Window.h"
 #include "Light.h"
 
-OBJObject::OBJObject(char* filepath)
+OBJObject::OBJObject(char* filepath, Material material)
 {
 	toWorld = glm::mat4(1.0f);
 	min_x = std::numeric_limits<float>::max();
@@ -11,8 +11,9 @@ OBJObject::OBJObject(char* filepath)
 	max_x = std::numeric_limits<float>::lowest();
 	max_y = std::numeric_limits<float>::lowest();
 	max_z = std::numeric_limits<float>::lowest();
+	this->material = material;
+	normalColor = 0;
 
-	objectColor = glm::vec3(1.0f, 0.41f, 0.7f);
 	parse(filepath);
 
 	// Create array object and buffers. Remember to delete your buffers when the object is destroyed!
@@ -85,18 +86,28 @@ void OBJObject::draw(GLuint shaderProgram)
 	// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 	// Get the location of the uniform variables "projection" and "modelview"
-	uObjectColor = glGetUniformLocation(shaderProgram, "objectColor");
+	//uObjectColor = glGetUniformLocation(shaderProgram, "objectColor");
 	uViewPos = glGetUniformLocation(shaderProgram, "viewPos");
 	uLightPos = glGetUniformLocation(shaderProgram, "lightPos");
 	uLightColor = glGetUniformLocation(shaderProgram, "lightColor");
+	uMAmbient = glGetUniformLocation(shaderProgram, "material.ambient");
+	uMDiffuse = glGetUniformLocation(shaderProgram, "material.diffuse");
+	uMSpecular = glGetUniformLocation(shaderProgram, "material.specular");
+	uMShininess = glGetUniformLocation(shaderProgram, "material.shininess");
+	uNormalColor = glGetUniformLocation(shaderProgram, "normalColor");
 	uProjection = glGetUniformLocation(shaderProgram, "projection");
 	uModel = glGetUniformLocation(shaderProgram, "model");
 	uView = glGetUniformLocation(shaderProgram, "view");
 	// Now send these values to the shader program
-	glUniform3fv(uObjectColor, 1, &objectColor[0]);
+	//glUniform3fv(uObjectColor, 1, &objectColor[0]);
 	glUniform3fv(uViewPos, 1, &Window::camPos[0]);
 	glUniform3fv(uLightPos, 1, &Light::lightPos[0]);
 	glUniform3fv(uLightColor, 1, &Light::lightColor[0]);
+	glUniform3fv(uMAmbient, 1, &material.ambient[0]);
+	glUniform3fv(uMDiffuse, 1, &material.diffuse[0]);
+	glUniform3fv(uMSpecular, 1, &material.specular[0]);
+	glUniform1f(uMShininess, material.shininess);
+	glUniform1i(uNormalColor, normalColor);
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
 	glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(uView, 1, GL_FALSE, &view[0][0]);
