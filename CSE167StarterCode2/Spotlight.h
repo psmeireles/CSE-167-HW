@@ -26,9 +26,13 @@ public:
 
 	glm::mat4 toWorld;
 
-	static glm::vec3 lightColor;
 	static glm::vec3 lightPos;
 	static glm::vec3 lightDirection;
+
+	static glm::vec3 ambient;
+	static glm::vec3 diffuse;
+	static glm::vec3 specular;
+
 	static float cutOff;
 	static float constant;
 	static float linear;

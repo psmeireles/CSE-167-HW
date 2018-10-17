@@ -29,10 +29,17 @@ struct PointLight {
 
 struct SpotLight {
     vec3 lightPos;
-    vec3 lightColor;
 	vec3 lightDirection;
     
     float cutOff;
+
+	vec3 ambient;
+    vec3 diffuse;
+	vec3 specular;
+
+    float constant;
+	float linear;
+	float quadratic;
 }; 
   
 uniform Material material;
