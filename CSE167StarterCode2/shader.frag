@@ -28,6 +28,10 @@ void main()
 		FragColor = vec4(Color, 1.0);
 	}
 	else{
+		float distance = length(lightPos - FragPos);
+		float constant = 1.0, linear = 0.22, quadratic = 0.13;
+		float attenuation = 1.0 / (constant + linear * distance + quadratic * distance * distance);
+
 		// ambient
 		vec3 ambient = lightColor * material.ambient;
   	
@@ -43,7 +47,7 @@ void main()
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 		vec3 specular = lightColor * (spec * material.specular);  
         
-		vec3 result = ambient + diffuse + specular;
+		vec3 result = attenuation * (ambient + diffuse + specular);
 		FragColor = vec4(result, 1.0);
 	}
 }
