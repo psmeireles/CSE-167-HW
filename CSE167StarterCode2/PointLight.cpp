@@ -2,7 +2,7 @@
 #include "Window.h"
 
 glm::vec3 PointLight::lightPos, PointLight::ambient, PointLight::diffuse, PointLight::specular;
-float PointLight::constant, PointLight::linear, PointLight::quadratic;
+float PointLight::constant, PointLight::linear;
 
 PointLight::PointLight()
 {
@@ -13,7 +13,6 @@ PointLight::PointLight()
 	lightPos = glm::vec3(0.0f, 1.0f, 2.0f);
 	constant = 1.0f;
 	linear = 0.22f;
-	quadratic = 0.13f;
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);

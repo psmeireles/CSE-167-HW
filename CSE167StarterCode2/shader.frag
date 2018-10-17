@@ -3,7 +3,6 @@
 
 in vec3 Normal;
 in vec3 FragPos;
-in vec3 Color;
 
 // You can output many things. The first vec4 type output determines the color of the fragment
 out vec4 FragColor;
@@ -24,7 +23,6 @@ struct PointLight {
 
     float constant;
 	float linear;
-	float quadratic;
 }; 
 
 struct SpotLight {
@@ -39,7 +37,6 @@ struct SpotLight {
 
     float constant;
 	float linear;
-	float quadratic;
 }; 
   
 uniform Material material;
@@ -52,11 +49,11 @@ uniform int normalColor;
 void main()
 {    
 	if(normalColor == 1){
-		FragColor = vec4(Color, 1.0);
+		FragColor = vec4(Normal, 1.0);
 	}
 	else{
 		float distance = length(pointlight.lightPos - FragPos);
-		float attenuation = 1.0 / (pointlight.constant + pointlight.linear * distance + pointlight.quadratic * distance * distance);
+		float attenuation = 1.0 / (pointlight.constant + pointlight.linear * distance);
 
 		// ambient
 		vec3 ambient = pointlight.ambient * material.ambient;

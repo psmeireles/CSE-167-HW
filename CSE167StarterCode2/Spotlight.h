@@ -36,7 +36,6 @@ public:
 	static float cutOff;
 	static float constant;
 	static float linear;
-	static float quadratic;
 
 	void draw(GLuint);
 	void update();

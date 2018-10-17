@@ -2,7 +2,7 @@
 #include "Window.h"
 
 glm::vec3 SpotLight::lightPos, SpotLight::ambient, SpotLight::diffuse, SpotLight::specular, SpotLight::lightDirection;
-float SpotLight::cutOff, SpotLight::constant, SpotLight::linear, SpotLight::quadratic;
+float SpotLight::cutOff, SpotLight::constant, SpotLight::linear;
 
 SpotLight::SpotLight()
 {

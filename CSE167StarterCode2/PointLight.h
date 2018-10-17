@@ -30,7 +30,7 @@ public:
 	static glm::vec3 ambient;
 	static glm::vec3 diffuse;
 	static glm::vec3 specular;
-	static float constant, linear, quadratic;
+	static float constant, linear;
 
 	void draw(GLuint);
 	void update();

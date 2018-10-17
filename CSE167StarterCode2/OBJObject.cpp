@@ -95,7 +95,6 @@ void OBJObject::draw(GLuint shaderProgram)
 	uPointLightPos = glGetUniformLocation(shaderProgram, "pointlight.lightPos");
 	uPointLightConstant = glGetUniformLocation(shaderProgram, "pointlight.constant");
 	uPointLightLinear = glGetUniformLocation(shaderProgram, "pointlight.linear");
-	uPointLightQuadratic = glGetUniformLocation(shaderProgram, "pointlight.quadratic");
 
 	uSpotLightPos = glGetUniformLocation(shaderProgram, "spotlight.lightPos");
 	uSpotLightDirection = glGetUniformLocation(shaderProgram, "spotlight.lightDirection");
@@ -105,7 +104,6 @@ void OBJObject::draw(GLuint shaderProgram)
 	uSpotLightSpecular = glGetUniformLocation(shaderProgram, "spotlight.specular");
 	uSpotLightConstant = glGetUniformLocation(shaderProgram, "spotlight.constant");
 	uSpotLightLinear = glGetUniformLocation(shaderProgram, "spotlight.linear");
-	uSpotLightQuadratic = glGetUniformLocation(shaderProgram, "spotlight.quadratic");
 
 	uMAmbient = glGetUniformLocation(shaderProgram, "material.ambient");
 	uMDiffuse = glGetUniformLocation(shaderProgram, "material.diffuse");
@@ -127,7 +125,6 @@ void OBJObject::draw(GLuint shaderProgram)
 	glUniform3fv(uPointLightSpecular, 1, &PointLight::specular[0]);
 	glUniform1f(uPointLightConstant, PointLight::constant);
 	glUniform1f(uPointLightLinear, PointLight::linear);
-	glUniform1f(uPointLightQuadratic, PointLight::quadratic);
 
 	glUniform3fv(uSpotLightPos, 1, &SpotLight::lightPos[0]);
 	glUniform3fv(uSpotLightDirection, 1, &SpotLight::lightDirection[0]);
@@ -137,7 +134,6 @@ void OBJObject::draw(GLuint shaderProgram)
 	glUniform3fv(uSpotLightSpecular, 1, &SpotLight::specular[0]);
 	glUniform1f(uSpotLightConstant, SpotLight::constant);
 	glUniform1f(uSpotLightLinear, SpotLight::linear);
-	glUniform1f(uSpotLightQuadratic, SpotLight::quadratic);
 
 	glUniform3fv(uMAmbient, 1, &material.ambient[0]);
 	glUniform3fv(uMDiffuse, 1, &material.diffuse[0]);
