@@ -1,6 +1,6 @@
 
-#ifndef _LIGHT_H_
-#define _LIGHT_H_
+#ifndef _SPOTLIGHT_H_
+#define _SPOTLIGHT_H_
 
 #define GLFW_INCLUDE_GLEXT
 #ifdef __APPLE__
@@ -17,17 +17,19 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
-class Light
+class Spotlight
 {
 
 public:
-	Light();
-	~Light();
+	Spotlight();
+	~Spotlight();
 
 	glm::mat4 toWorld;
 
 	static glm::vec3 lightColor;
 	static glm::vec3 lightPos;
+	static glm::vec3 lightDirection;
+	static float cutOff;
 
 	void draw(GLuint);
 	void update();

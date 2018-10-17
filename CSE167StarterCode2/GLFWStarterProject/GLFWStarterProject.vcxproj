@@ -24,6 +24,7 @@
     <ClInclude Include="..\OBJObject.h" />
     <ClInclude Include="..\main.h" />
     <ClInclude Include="..\shader.h" />
+    <ClInclude Include="..\Spotlight.h" />
     <ClInclude Include="..\Window.h" />
   </ItemGroup>
   <ItemGroup>
@@ -32,6 +33,7 @@
     <ClCompile Include="..\OBJObject.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\shader.cpp" />
+    <ClCompile Include="..\Spotlight.cpp" />
     <ClCompile Include="..\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
