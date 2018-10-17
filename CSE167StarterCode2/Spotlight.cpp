@@ -1,13 +1,13 @@
-#include "Spotlight.h"
+#include "SpotLight.h"
 #include "Window.h"
 
-glm::vec3 Spotlight::lightPos, Spotlight::lightColor, Spotlight::lightDirection;
-float Spotlight::cutOff;
+glm::vec3 SpotLight::lightPos, SpotLight::lightColor, SpotLight::lightDirection;
+float SpotLight::cutOff;
 
-Spotlight::Spotlight()
+SpotLight::SpotLight()
 {
 	toWorld = glm::mat4(1.0f);
-	lightColor = glm::vec3(1.0f, 0.0f, 0.0f);
+	lightColor = glm::vec3(0.0f, 0.0f, 1.0f);
 	lightPos = Window::camPos;
 	lightDirection = glm::vec3(0.0f, 0.0f, -1.0f);
 	cutOff = glm::cos(glm::radians(12.5f));
@@ -25,7 +25,7 @@ Spotlight::Spotlight()
 	//glEnableVertexAttribArray(0);
 }
 
-Spotlight::~Spotlight()
+SpotLight::~SpotLight()
 {
 	// Delete previously generated buffers. Note that forgetting to do this can waste GPU memory in a 
 	// large project! This could crash the graphics driver due to memory leaks, or slow down application performance!
@@ -34,7 +34,7 @@ Spotlight::~Spotlight()
 	glDeleteBuffers(1, &EBO);*/
 }
 
-void Spotlight::draw(GLuint shaderProgram)
+void SpotLight::draw(GLuint shaderProgram)
 {
 	//glUseProgram(shaderProgram);
 	//// Calculate the combination of the model and view (camera inverse) matrices
@@ -60,7 +60,7 @@ void Spotlight::draw(GLuint shaderProgram)
 	//glBindVertexArray(0);
 }
 
-void Spotlight::update()
+void SpotLight::update()
 {
 	//spin(1.0f);
 }

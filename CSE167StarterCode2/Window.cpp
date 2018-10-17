@@ -2,7 +2,8 @@
 
 const char* window_title = "GLFW Starter Project";
 OBJObject *bunny, *bear, *dragon, *currentOBJ;
-Light *light;
+PointLight *light;
+SpotLight *spotlight;
 GLint objShader, lightShader;
 glm::vec3 Window::camPos;
 
@@ -28,7 +29,8 @@ void Window::initialize_objects()
 	dragon = new OBJObject("../obj/dragon.obj", Material(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.41f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 32.0f));
 	currentOBJ = bunny;
 
-	light = new Light();
+	light = new PointLight();
+	spotlight = new SpotLight();
 
 	camPos = glm::vec3(0.0f, 0.0f, 10.0f);
 

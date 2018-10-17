@@ -48,7 +48,9 @@ public:
 
 	// These variables are needed for the shader program
 	GLuint VBO, VAO, EBO, normalBuffer;
-	GLuint uProjection, uModel, uView, uLightPos, uLightColor, uObjectColor, uViewPos, uMAmbient;
+	GLuint uProjection, uModel, uView, uViewPos, uMAmbient;
+	GLuint uPointLightPos, uPointLightAmbient, uPointLightDiffuse, uPointLightSpecular, uPointLightConstant, uPointLightLinear, uPointLightQuadratic;
+	GLuint uSpotLightPos, uSpotLightColor, uSpotLightDirection, uSpotLightCutOff;
 	GLuint uMDiffuse, uMSpecular, uMShininess;
 	GLuint uNormalColor;
 };

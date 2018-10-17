@@ -17,12 +17,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
-class Spotlight
+class SpotLight
 {
 
 public:
-	Spotlight();
-	~Spotlight();
+	SpotLight();
+	~SpotLight();
 
 	glm::mat4 toWorld;
 
@@ -30,6 +30,9 @@ public:
 	static glm::vec3 lightPos;
 	static glm::vec3 lightDirection;
 	static float cutOff;
+	static float constant;
+	static float linear;
+	static float quadratic;
 
 	void draw(GLuint);
 	void update();

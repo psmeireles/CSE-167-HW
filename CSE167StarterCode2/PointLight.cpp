@@ -1,13 +1,19 @@
-#include "Light.h"
+#include "PointLight.h"
 #include "Window.h"
 
-glm::vec3 Light::lightPos, Light::lightColor;
+glm::vec3 PointLight::lightPos, PointLight::ambient, PointLight::diffuse, PointLight::specular;
+float PointLight::constant, PointLight::linear, PointLight::quadratic;
 
-Light::Light()
+PointLight::PointLight()
 {
 	toWorld = glm::mat4(1.0f);
-	lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+	diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+	specular = glm::vec3(1.0f, 1.0f, 1.0f);
 	lightPos = glm::vec3(0.0f, 1.0f, 2.0f);
+	constant = 1.0f;
+	linear = 0.22f;
+	quadratic = 0.13f;
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -22,7 +28,7 @@ Light::Light()
 	glEnableVertexAttribArray(0);
 }
 
-Light::~Light()
+PointLight::~PointLight()
 {
 	// Delete previously generated buffers. Note that forgetting to do this can waste GPU memory in a 
 	// large project! This could crash the graphics driver due to memory leaks, or slow down application performance!
@@ -31,7 +37,7 @@ Light::~Light()
 	glDeleteBuffers(1, &EBO);
 }
 
-void Light::draw(GLuint shaderProgram)
+void PointLight::draw(GLuint shaderProgram)
 {
 	glUseProgram(shaderProgram);
 	// Calculate the combination of the model and view (camera inverse) matrices
@@ -57,7 +63,7 @@ void Light::draw(GLuint shaderProgram)
 	glBindVertexArray(0);
 }
 
-void Light::update()
+void PointLight::update()
 {
 	//spin(1.0f);
 }

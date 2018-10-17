@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Light.h" />
+    <ClInclude Include="..\PointLight.h" />
     <ClInclude Include="..\Material.h" />
     <ClInclude Include="..\OBJObject.h" />
     <ClInclude Include="..\main.h" />
@@ -28,12 +28,12 @@
     <ClInclude Include="..\Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Light.cpp" />
+    <ClCompile Include="..\PointLight.cpp" />
     <ClCompile Include="..\Material.cpp" />
     <ClCompile Include="..\OBJObject.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\shader.cpp" />
-    <ClCompile Include="..\Spotlight.cpp" />
+    <ClCompile Include="..\SpotLight.cpp" />
     <ClCompile Include="..\Window.cpp" />
   </ItemGroup>
   <ItemGroup>

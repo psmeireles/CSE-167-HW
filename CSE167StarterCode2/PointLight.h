@@ -1,6 +1,6 @@
 
-#ifndef _LIGHT_H_
-#define _LIGHT_H_
+#ifndef _POINTLIGHT_H_
+#define _POINTLIGHT_H_
 
 #define GLFW_INCLUDE_GLEXT
 #ifdef __APPLE__
@@ -17,17 +17,20 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
-class Light
+class PointLight
 {
 
 public:
-	Light();
-	~Light();
+	PointLight();
+	~PointLight();
 
 	glm::mat4 toWorld;
 
-	static glm::vec3 lightColor;
 	static glm::vec3 lightPos;
+	static glm::vec3 ambient;
+	static glm::vec3 diffuse;
+	static glm::vec3 specular;
+	static float constant, linear, quadratic;
 
 	void draw(GLuint);
 	void update();
