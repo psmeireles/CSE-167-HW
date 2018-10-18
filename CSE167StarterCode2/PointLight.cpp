@@ -1,6 +1,7 @@
 #include "PointLight.h"
 #include "Window.h"
 
+glm::mat4 PointLight::toWorld;
 glm::vec3 PointLight::lightPos, PointLight::color;
 float PointLight::constant, PointLight::linear;
 

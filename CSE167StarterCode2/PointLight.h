@@ -24,7 +24,7 @@ public:
 	PointLight();
 	~PointLight();
 
-	glm::mat4 toWorld;
+	static glm::mat4 toWorld;
 
 	static glm::vec3 lightPos;
 	static glm::vec3 color;

@@ -191,7 +191,19 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	currentOBJ->scale(yoffset > 0 ? 1.1 : 0.9);
+	if (toggleModel) {
+		currentOBJ->scale(yoffset > 0.0f ? 1.1 : 0.9);
+	}
+	if (togglePointLight) {
+		PointLight::lightPos.x -= PointLight::lightPos.x / PointLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+		PointLight::lightPos.y -= PointLight::lightPos.y / PointLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+		PointLight::lightPos.z -= PointLight::lightPos.z / PointLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+	}
+	if (toggleSpotLight) {
+		SpotLight::lightPos.x -= SpotLight::lightPos.x / SpotLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+		SpotLight::lightPos.y -= SpotLight::lightPos.y / SpotLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+		SpotLight::lightPos.z -= SpotLight::lightPos.z / SpotLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+	}
 }
 
 void Window::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
