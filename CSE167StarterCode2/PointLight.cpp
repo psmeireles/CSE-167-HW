@@ -2,13 +2,14 @@
 #include "Window.h"
 
 glm::mat4 PointLight::toWorld;
-glm::vec3 PointLight::lightPos, PointLight::color;
+glm::vec3 PointLight::lightPos, PointLight::currColor, PointLight::actualColor;
 float PointLight::constant, PointLight::linear;
 
 PointLight::PointLight()
 {
 	toWorld = glm::mat4(1.0f);
-	color = glm::vec3(1.0f, 1.0f, 0.0f);
+	actualColor = glm::vec3(1.0f, 1.0f, 0.0f);
+	currColor = actualColor;
 	lightPos = glm::vec3(0.0f, 1.0f, 2.0f);
 	constant = 1.0f;
 	linear = 0.22f;
@@ -159,7 +160,7 @@ void PointLight::draw(GLuint shaderProgram)
 	uModelview = glGetUniformLocation(shaderProgram, "modelview");
 	//uLightColor = glGetUniformLocation(shaderProgram, "lightColor");
 	// Now send these values to the shader program
-	glUniform3fv(uColor, 1, &PointLight::color[0]);
+	glUniform3fv(uColor, 1, &PointLight::currColor[0]);
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
 	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
 	//glUniform3fv(uLightColor, 1, &lightColor[0]);

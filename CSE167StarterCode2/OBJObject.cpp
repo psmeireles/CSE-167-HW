@@ -116,14 +116,14 @@ void OBJObject::draw(GLuint shaderProgram)
 	glUniform3fv(uViewPos, 1, &Window::camPos[0]);
 
 	glUniform3fv(uPointLightPos, 1, &PointLight::lightPos[0]);
-	glUniform3fv(uPointLightColor, 1, &PointLight::color[0]);
+	glUniform3fv(uPointLightColor, 1, &PointLight::currColor[0]);
 	glUniform1f(uPointLightConstant, PointLight::constant);
 	glUniform1f(uPointLightLinear, PointLight::linear);
 
 	glUniform3fv(uSpotLightPos, 1, &SpotLight::lightPos[0]);
 	glUniform3fv(uSpotLightDirection, 1, &SpotLight::lightDirection[0]);
 	glUniform1f(uSpotLightCutOff, SpotLight::cutOff);
-	glUniform3fv(uSpotLightColor, 1, &SpotLight::color[0]);
+	glUniform3fv(uSpotLightColor, 1, &SpotLight::currColor[0]);
 	glUniform1f(uSpotLightConstant, SpotLight::constant);
 	glUniform1f(uSpotLightLinear, SpotLight::linear);
 

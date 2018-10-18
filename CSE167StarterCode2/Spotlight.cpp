@@ -1,13 +1,14 @@
 #include "SpotLight.h"
 #include "Window.h"
 
-glm::vec3 SpotLight::lightPos, SpotLight::color, SpotLight::lightDirection;
+glm::vec3 SpotLight::lightPos, SpotLight::currColor, SpotLight::actualColor, SpotLight::lightDirection;
 float SpotLight::cutOff, SpotLight::constant, SpotLight::linear, SpotLight::coneAngle;
 
 SpotLight::SpotLight()
 {
 	toWorld = glm::mat4(1.0f);
-	color = glm::vec3(0.0f, 0.0f, 0.1f);
+	actualColor = glm::vec3(0.0f, 0.0f, 1.0f);
+	currColor = actualColor;
 	lightPos = glm::vec3(1.0f, 2.0f, 2.0f);//Window::camPos;
 	lightDirection = glm::normalize(-lightPos);
 	coneAngle = 12.5;
@@ -160,7 +161,7 @@ void SpotLight::draw(GLuint shaderProgram)
 	uModelview = glGetUniformLocation(shaderProgram, "modelview");
 	//uLightColor = glGetUniformLocation(shaderProgram, "lightColor");
 	// Now send these values to the shader program
-	glUniform3fv(uColor, 1, &SpotLight::color[0]);
+	glUniform3fv(uColor, 1, &SpotLight::currColor[0]);
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
 	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
 	//glUniform3fv(uLightColor, 1, &lightColor[0]);

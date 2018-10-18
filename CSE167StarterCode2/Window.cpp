@@ -171,6 +171,12 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 				SpotLight::cutOff = glm::cos(glm::radians(SpotLight::coneAngle));
 			}
 			break;
+		case GLFW_KEY_S:
+			SpotLight::currColor = SpotLight::currColor == glm::vec3(0.0f, 0.0f, 0.0f) ? SpotLight::actualColor : glm::vec3(0.0f, 0.0f, 0.0f);
+			break;
+		case GLFW_KEY_P:
+			PointLight::currColor = PointLight::currColor == glm::vec3(0.0f, 0.0f, 0.0f) ? PointLight::actualColor : glm::vec3(0.0f, 0.0f, 0.0f);
+			break;
 		case GLFW_KEY_0:
 			toggleModel = !toggleModel;
 			break;

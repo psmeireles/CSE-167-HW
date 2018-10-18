@@ -80,7 +80,7 @@ vec3 calcSpotLight(SpotLight spotlight){
 		// diffuse 
 		vec3 norm = normalize(Normal);
 		float diff = max(dot(norm, lightDir), 0.0);
-		vec3 diffuse = pointlight.color * (diff * material.diffuse);
+		vec3 diffuse = spotlight.color * (diff * material.diffuse);
 
 		// specular
 		vec3 viewDir = normalize(viewPos - FragPos);
