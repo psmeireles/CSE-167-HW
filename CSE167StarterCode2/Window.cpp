@@ -16,8 +16,8 @@ int Window::width;
 int Window::height;
 
 bool Window::movement = false;
-bool togglePointLight = false;
-bool toggleSpotLight = false;
+bool togglePointLight = true;
+bool toggleSpotLight = true;
 bool toggleModel = true;
 
 glm::vec3 Window::lastPoint;
@@ -220,15 +220,17 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	if (toggleModel) {
 		currentOBJ->scale(yoffset > 0.0f ? 1.1 : 0.9);
 	}
-	if (togglePointLight) {
-		PointLight::lightPos.x -= PointLight::lightPos.x / PointLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
-		PointLight::lightPos.y -= PointLight::lightPos.y / PointLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
-		PointLight::lightPos.z -= PointLight::lightPos.z / PointLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
-	}
-	if (toggleSpotLight) {
-		SpotLight::lightPos.x -= SpotLight::lightPos.x / SpotLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
-		SpotLight::lightPos.y -= SpotLight::lightPos.y / SpotLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
-		SpotLight::lightPos.z -= SpotLight::lightPos.z / SpotLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+	else {
+		if (togglePointLight) {
+			PointLight::lightPos.x -= PointLight::lightPos.x / PointLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+			PointLight::lightPos.y -= PointLight::lightPos.y / PointLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+			PointLight::lightPos.z -= PointLight::lightPos.z / PointLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+		}
+		if (toggleSpotLight) {
+			SpotLight::lightPos.x -= SpotLight::lightPos.x / SpotLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+			SpotLight::lightPos.y -= SpotLight::lightPos.y / SpotLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+			SpotLight::lightPos.z -= SpotLight::lightPos.z / SpotLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
+		}
 	}
 }
 
