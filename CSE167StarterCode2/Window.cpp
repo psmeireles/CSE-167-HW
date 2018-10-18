@@ -35,7 +35,7 @@ void Window::initialize_objects()
 	light = new PointLight();
 	spotlight = new SpotLight();
 
-	camPos = glm::vec3(0.0f, 0.0f, 5.0f);
+	camPos = glm::vec3(0.0f, 0.0f, 10.0f);
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	objShader = LoadShaders("../shader.vert", "../shader.frag");
@@ -277,7 +277,7 @@ glm::vec3 Window::trackBallMapping(glm::vec2 point)
 	v.z = 0;
 	d = v.length();
 	d = (d < 1.0) ? d : sqrt(0.5);
-	v.z = sqrtf(1.001 - d * d);
+	v.z = 1;
 	v.x /= v.length();
 	v.y /= v.length();
 	v.z /= v.length();

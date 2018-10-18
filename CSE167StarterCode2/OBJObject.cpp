@@ -196,8 +196,8 @@ void OBJObject::parse(const char *filepath)
 		else if (c1 == 'f') {
 			GLuint f[6];
 			fscanf(fp, " %u//%u %u//%u %u//$u", &f[0], &f[1], &f[2], &f[3], &f[4], &f[5]);
-			for(int i = 0; i < 6; i++)
-				this->indices.push_back(f[i]-1);
+			for(int i = 0; i < 3; i++)
+				this->indices.push_back(f[2*i]-1);
 		}
 		c1 = fgetc(fp);
 	}

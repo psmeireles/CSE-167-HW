@@ -71,8 +71,8 @@ void SpotLight::parse(char* filepath) {
 		else if (c1 == 'f') {
 			GLuint f[6];
 			fscanf(fp, " %u//%u %u//%u %u//$u", &f[0], &f[1], &f[2], &f[3], &f[4], &f[5]);
-			for (int i = 0; i < 6; i++)
-				this->indices.push_back(f[i] - 1);
+			for (int i = 0; i < 3; i++)
+				this->indices.push_back(f[2*i] - 1);
 		}
 		c1 = fgetc(fp);
 	}
@@ -170,7 +170,7 @@ void SpotLight::draw(GLuint shaderProgram)
 	// Now draw the OBJObject. We simply need to bind the VAO associated with it.
 	glBindVertexArray(VAO);
 	// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
-	glDrawArrays(GL_TRIANGLES, 0, indices.size());
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
 	glBindVertexArray(0);
 }
