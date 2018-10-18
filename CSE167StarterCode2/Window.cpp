@@ -35,7 +35,7 @@ void Window::initialize_objects()
 	light = new PointLight();
 	spotlight = new SpotLight();
 
-	camPos = glm::vec3(0.0f, 0.0f, 10.0f);
+	camPos = glm::vec3(0.0f, 0.0f, 5.0f);
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	objShader = LoadShaders("../shader.vert", "../shader.frag");
@@ -130,6 +130,7 @@ void Window::display_callback(GLFWwindow* window)
 	// Render the cube
 	currentOBJ->draw(objShader);
 	light->draw(lightShader);
+	spotlight->draw(lightShader);
 	
 
 	// Gets events, including input such as keyboard and mouse or window resizing
@@ -232,6 +233,7 @@ void Window::cursor_position_callback(GLFWwindow* window, double xpos, double yp
 			if (toggleSpotLight) {
 				glm::vec4 newPos = rotMatrix * glm::vec4(SpotLight::lightPos.x, SpotLight::lightPos.y, SpotLight::lightPos.z, 1.0f);
 				SpotLight::lightPos = glm::vec3(newPos.x, newPos.y, newPos.z);
+				SpotLight::lightDirection = glm::normalize(-SpotLight::lightPos);
 			}
 		}
 

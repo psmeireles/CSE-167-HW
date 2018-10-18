@@ -14,7 +14,6 @@ PointLight::PointLight()
 	linear = 0.22f;
 
 	parse("../obj/sphere.obj");
-	printf("%d %d %d\n", vertices.size(), normals.size(), indices.size());
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
