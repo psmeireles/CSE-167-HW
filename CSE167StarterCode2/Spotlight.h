@@ -34,6 +34,7 @@ public:
 	static float cutOff;
 	static float constant;
 	static float linear;
+	static float coneAngle;
 
 	void draw(GLuint);
 	void update();

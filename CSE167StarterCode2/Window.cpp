@@ -161,6 +161,16 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		case GLFW_KEY_N:
 			OBJObject::normalColor = (OBJObject::normalColor + 1) % 2;
 			break;
+		case GLFW_KEY_W:
+			if (mods == GLFW_MOD_SHIFT) {
+				SpotLight::coneAngle += 1.0f;
+				SpotLight::cutOff = glm::cos(glm::radians(SpotLight::coneAngle));
+			}
+			else {
+				SpotLight::coneAngle -= 1.0f;
+				SpotLight::cutOff = glm::cos(glm::radians(SpotLight::coneAngle));
+			}
+			break;
 		case GLFW_KEY_0:
 			toggleModel = !toggleModel;
 			break;
