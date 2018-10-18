@@ -33,6 +33,8 @@ public:
 	static glm::vec3 currColor;
 
 	static float cutOff;
+	static float outerCutOff;
+	static float outerCutOffMultiplier;
 	static float constant;
 	static float linear;
 	static float coneAngle;

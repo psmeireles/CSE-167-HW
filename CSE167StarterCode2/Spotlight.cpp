@@ -2,7 +2,7 @@
 #include "Window.h"
 
 glm::vec3 SpotLight::lightPos, SpotLight::currColor, SpotLight::actualColor, SpotLight::lightDirection;
-float SpotLight::cutOff, SpotLight::constant, SpotLight::linear, SpotLight::coneAngle;
+float SpotLight::cutOff, SpotLight::outerCutOff, SpotLight::outerCutOffMultiplier, SpotLight::constant, SpotLight::linear, SpotLight::coneAngle;
 
 SpotLight::SpotLight()
 {
@@ -13,6 +13,8 @@ SpotLight::SpotLight()
 	lightDirection = glm::normalize(-lightPos);
 	coneAngle = 12.5;
 	cutOff = glm::cos(glm::radians(coneAngle));
+	outerCutOffMultiplier = 1.1f;
+	outerCutOff = glm::cos(glm::radians(coneAngle*outerCutOffMultiplier));
 	constant = 1.0f;
 	linear = 0.12f;
 

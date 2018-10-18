@@ -3,6 +3,7 @@
 
 in vec3 Normal;
 in vec3 FragPos;
+in vec3 colorNormal;
 
 // You can output many things. The first vec4 type output determines the color of the fragment
 out vec4 FragColor;
@@ -28,6 +29,7 @@ struct SpotLight {
 	vec3 lightDirection;
     
     float cutOff;
+	float outerCutOff;
 
 	vec3 color;
 
@@ -67,38 +69,35 @@ vec3 calcPointLight(PointLight pointlight){
 vec3 calcSpotLight(SpotLight spotlight){
 	vec3 lightDir = normalize(spotlight.lightPos - FragPos);
 	float theta = dot(lightDir, normalize(-spotlight.lightDirection));
+	float epsilon = spotlight.cutOff - spotlight.outerCutOff;
+	float intensity = clamp((theta - spotlight.outerCutOff) / epsilon, 0.0, 1.0);   
 	
-
-	if(theta > spotlight.cutOff) 
-	{
-		float distance = length(spotlight.lightPos - FragPos);
-		float attenuation = 1.0/(spotlight.constant + spotlight.linear*distance);
+	float distance = length(spotlight.lightPos - FragPos);
+	float attenuation = 1.0/(spotlight.constant + spotlight.linear*distance);
 	
-		// ambient
-		vec3 ambient = spotlight.color * material.ambient;
+	// ambient
+	vec3 ambient = spotlight.color * material.ambient;
 
-		// diffuse 
-		vec3 norm = normalize(Normal);
-		float diff = max(dot(norm, lightDir), 0.0);
-		vec3 diffuse = spotlight.color * (diff * material.diffuse);
+	// diffuse 
+	vec3 norm = normalize(Normal);
+	float diff = max(dot(norm, lightDir), 0.0);
+	vec3 diffuse = spotlight.color * (diff * material.diffuse) * intensity;
 
-		// specular
-		vec3 viewDir = normalize(viewPos - FragPos);
-		vec3 reflectDir = reflect(-lightDir, norm);  
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-		vec3 specular = spotlight.color * (spec * material.specular);
+	// specular
+	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 reflectDir = reflect(-lightDir, norm);  
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+	vec3 specular = spotlight.color * (spec * material.specular) * intensity;
 
-		vec3 result = ambient + attenuation*(diffuse + specular);
-		return result;
-	}
-	else  // else, use ambient light so scene isn't completely dark outside the spotlight.
-		return vec3(spotlight.color * material.ambient);
+	vec3 result = ambient + attenuation*(diffuse + specular);
+	return result;
+	
 }
 
 void main()
 {    
 	if(normalColor == 1){
-		FragColor = vec4((Normal.x + 1.0)/2.0, (Normal.y + 1.0)/2.0, (Normal.z + 1.0)/2.0, 1.0);
+		FragColor = vec4(colorNormal, 1.0);
 	}
 	else{
 		vec3 result = calcPointLight(pointlight);

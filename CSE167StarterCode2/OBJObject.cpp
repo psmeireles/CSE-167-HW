@@ -97,6 +97,7 @@ void OBJObject::draw(GLuint shaderProgram)
 	uSpotLightPos = glGetUniformLocation(shaderProgram, "spotlight.lightPos");
 	uSpotLightDirection = glGetUniformLocation(shaderProgram, "spotlight.lightDirection");
 	uSpotLightCutOff = glGetUniformLocation(shaderProgram, "spotlight.cutOff");
+	uSpotLightOuterCutOff = glGetUniformLocation(shaderProgram, "spotlight.outerCutOff");
 	uSpotLightColor = glGetUniformLocation(shaderProgram, "spotlight.color");
 	uSpotLightConstant = glGetUniformLocation(shaderProgram, "spotlight.constant");
 	uSpotLightLinear = glGetUniformLocation(shaderProgram, "spotlight.linear");
@@ -123,6 +124,7 @@ void OBJObject::draw(GLuint shaderProgram)
 	glUniform3fv(uSpotLightPos, 1, &SpotLight::lightPos[0]);
 	glUniform3fv(uSpotLightDirection, 1, &SpotLight::lightDirection[0]);
 	glUniform1f(uSpotLightCutOff, SpotLight::cutOff);
+	glUniform1f(uSpotLightOuterCutOff, SpotLight::outerCutOff);
 	glUniform3fv(uSpotLightColor, 1, &SpotLight::currColor[0]);
 	glUniform1f(uSpotLightConstant, SpotLight::constant);
 	glUniform1f(uSpotLightLinear, SpotLight::linear);

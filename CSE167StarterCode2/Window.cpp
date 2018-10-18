@@ -163,13 +163,22 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			break;
 		case GLFW_KEY_W:
 			if (mods == GLFW_MOD_SHIFT) {
-				SpotLight::coneAngle += 1.0f;
-				SpotLight::cutOff = glm::cos(glm::radians(SpotLight::coneAngle));
+				SpotLight::coneAngle *= 1.1f;
 			}
 			else {
-				SpotLight::coneAngle -= 1.0f;
-				SpotLight::cutOff = glm::cos(glm::radians(SpotLight::coneAngle));
+				SpotLight::coneAngle *= 0.9f;
 			}
+			SpotLight::cutOff = glm::cos(glm::radians(SpotLight::coneAngle));
+			SpotLight::outerCutOff = glm::cos(glm::radians(SpotLight::coneAngle * SpotLight::outerCutOffMultiplier));
+			break;
+		case GLFW_KEY_E:
+			if (mods == GLFW_MOD_SHIFT) {
+				SpotLight::outerCutOffMultiplier *= 1.1f;
+			}
+			else {
+				SpotLight::outerCutOffMultiplier *= 0.9f;
+			}
+			SpotLight::outerCutOff = glm::cos(glm::radians(SpotLight::coneAngle * SpotLight::outerCutOffMultiplier));
 			break;
 		case GLFW_KEY_S:
 			SpotLight::currColor = SpotLight::currColor == glm::vec3(0.0f, 0.0f, 0.0f) ? SpotLight::actualColor : glm::vec3(0.0f, 0.0f, 0.0f);

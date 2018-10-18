@@ -11,11 +11,13 @@ uniform mat4 view;
 
 out vec3 Normal;
 out vec3 FragPos;
+out vec3 colorNormal;
 
 void main()
 {
     // OpenGL maintains the D matrix so you only need to multiply by P, V (aka C inverse), and M
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 	Normal = mat3(transpose(inverse(model))) * aNormal;
+	colorNormal = mat3(transpose(inverse(model))) * vec3((aNormal.x + 1)/2, (aNormal.y + 1)/2, (aNormal.z + 1)/2);
 	FragPos = vec3(model * vec4(aPos, 1.0));
 }

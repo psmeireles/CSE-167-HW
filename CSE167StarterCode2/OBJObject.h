@@ -50,7 +50,7 @@ public:
 	GLuint VBO, VAO, EBO, normalBuffer;
 	GLuint uProjection, uModel, uView, uViewPos, uMAmbient;
 	GLuint uPointLightPos, uPointLightColor, uPointLightConstant, uPointLightLinear;
-	GLuint uSpotLightPos, uSpotLightDirection, uSpotLightCutOff, uSpotLightColor, uSpotLightConstant, uSpotLightLinear;
+	GLuint uSpotLightPos, uSpotLightDirection, uSpotLightCutOff, uSpotLightOuterCutOff, uSpotLightColor, uSpotLightConstant, uSpotLightLinear;
 	GLuint uMDiffuse, uMSpecular, uMShininess;
 	GLuint uNormalColor;
 };
