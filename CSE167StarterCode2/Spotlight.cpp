@@ -27,6 +27,10 @@ SpotLight::SpotLight()
 	//glEnableVertexAttribArray(0);
 }
 
+void parse(char* filepath) {
+
+}
+
 SpotLight::~SpotLight()
 {
 	// Delete previously generated buffers. Note that forgetting to do this can waste GPU memory in a 
