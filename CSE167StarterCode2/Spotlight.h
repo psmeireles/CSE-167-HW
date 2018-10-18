@@ -29,9 +29,7 @@ public:
 	static glm::vec3 lightPos;
 	static glm::vec3 lightDirection;
 
-	static glm::vec3 ambient;
-	static glm::vec3 diffuse;
-	static glm::vec3 specular;
+	static glm::vec3 color;
 
 	static float cutOff;
 	static float constant;

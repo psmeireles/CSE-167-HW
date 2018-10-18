@@ -1,18 +1,18 @@
 #include "SpotLight.h"
 #include "Window.h"
 
-glm::vec3 SpotLight::lightPos, SpotLight::ambient, SpotLight::diffuse, SpotLight::specular, SpotLight::lightDirection;
+glm::vec3 SpotLight::lightPos, SpotLight::color, SpotLight::lightDirection;
 float SpotLight::cutOff, SpotLight::constant, SpotLight::linear;
 
 SpotLight::SpotLight()
 {
 	toWorld = glm::mat4(1.0f);
-	ambient = glm::vec3(0.0f, 0.0f, 0.2f);
-	diffuse = glm::vec3(0.0f, 0.0f, 0.8f);
-	specular = glm::vec3(0.0f, 0.0f, 1.0f);
+	color = glm::vec3(0.0f, 0.0f, 0.1f);
 	lightPos = Window::camPos;
-	lightDirection = glm::vec3(0.0f, 0.0f, -1.0f);
-	cutOff = glm::cos(glm::radians(12.5f));
+	lightDirection = glm::vec3(0.0f, 0.0f, 1.0f);
+	cutOff = glm::cos(glm::radians(25.5f));
+	constant = 1.0f;
+	linear = 0.12f;
 
 	//glGenVertexArrays(1, &VAO);
 	//glGenBuffers(1, &VBO);

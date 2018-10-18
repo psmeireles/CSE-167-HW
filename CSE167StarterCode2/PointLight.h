@@ -27,9 +27,7 @@ public:
 	glm::mat4 toWorld;
 
 	static glm::vec3 lightPos;
-	static glm::vec3 ambient;
-	static glm::vec3 diffuse;
-	static glm::vec3 specular;
+	static glm::vec3 color;
 	static float constant, linear;
 
 	void draw(GLuint);

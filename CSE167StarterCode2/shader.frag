@@ -17,9 +17,7 @@ struct Material {
 struct PointLight {
     vec3 lightPos;
 
-    vec3 ambient;
-    vec3 diffuse;
-	vec3 specular;
+    vec3 color;
 
     float constant;
 	float linear;
@@ -31,9 +29,7 @@ struct SpotLight {
     
     float cutOff;
 
-	vec3 ambient;
-    vec3 diffuse;
-	vec3 specular;
+	vec3 color;
 
     float constant;
 	float linear;
@@ -45,6 +41,59 @@ uniform SpotLight spotlight;
 uniform vec3 viewPos;
 uniform int normalColor;
 
+vec3 calcPointLight(PointLight pointlight){
+	float distance = length(pointlight.lightPos - FragPos);
+	float attenuation = 1.0 / (pointlight.constant + pointlight.linear * distance);
+
+	// ambient
+	vec3 ambient = pointlight.color * material.ambient;
+  	
+	// diffuse 
+	vec3 norm = normalize(Normal);
+	vec3 lightDir = normalize(pointlight.lightPos - FragPos);
+	float diff = max(dot(norm, lightDir), 0.0);
+	vec3 diffuse = pointlight.color * (diff * material.diffuse);
+    
+	// specular
+	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 reflectDir = reflect(-lightDir, norm);  
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+	vec3 specular = pointlight.color * (spec * material.specular);  
+
+	vec3 result = ambient + attenuation * (diffuse + specular);
+	return result;
+}
+
+vec3 calcSpotLight(SpotLight spotlight){
+	vec3 lightDir = normalize(spotlight.lightPos - FragPos);
+	float theta = dot(lightDir, normalize(-spotlight.lightDirection));
+	
+
+	if(theta > spotlight.cutOff) 
+	{
+		float distance = length(spotlight.lightPos - FragPos);
+		float attenuation = 1.0/(spotlight.constant + spotlight.linear*distance);
+	
+		// ambient
+		vec3 ambient = spotlight.color * material.ambient;
+
+		// diffuse 
+		vec3 norm = normalize(Normal);
+		float diff = max(dot(norm, lightDir), 0.0);
+		vec3 diffuse = pointlight.color * (diff * material.diffuse);
+
+		// specular
+		vec3 viewDir = normalize(viewPos - FragPos);
+		vec3 reflectDir = reflect(-lightDir, norm);  
+		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+		vec3 specular = spotlight.color * (spec * material.specular);
+
+		vec3 result = ambient + attenuation*(diffuse + specular);
+		return result;
+	}
+	else  // else, use ambient light so scene isn't completely dark outside the spotlight.
+		return vec3(spotlight.color * material.ambient);
+}
 
 void main()
 {    
@@ -52,26 +101,11 @@ void main()
 		FragColor = vec4(Normal, 1.0);
 	}
 	else{
-		float distance = length(pointlight.lightPos - FragPos);
-		float attenuation = 1.0 / (pointlight.constant + pointlight.linear * distance);
-
-		// ambient
-		vec3 ambient = pointlight.ambient * material.ambient;
-  	
-		// diffuse 
-		vec3 norm = normalize(Normal);
-		vec3 lightDir = normalize(pointlight.lightPos - FragPos);
-		float diff = max(dot(norm, lightDir), 0.0);
-		vec3 diffuse = pointlight.diffuse * (diff * material.diffuse);
-    
-		// specular
-		vec3 viewDir = normalize(viewPos - FragPos);
-		vec3 reflectDir = reflect(-lightDir, norm);  
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-		vec3 specular = pointlight.specular * (spec * material.specular);  
-
-		vec3 result = attenuation * (ambient + diffuse + specular);
+		vec3 result = calcPointLight(pointlight);
+		result += calcSpotLight(spotlight);
 		FragColor = vec4(result, 1.0);
 	}
 }
+
+
 

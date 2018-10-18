@@ -1,15 +1,13 @@
 #include "PointLight.h"
 #include "Window.h"
 
-glm::vec3 PointLight::lightPos, PointLight::ambient, PointLight::diffuse, PointLight::specular;
+glm::vec3 PointLight::lightPos, PointLight::color;
 float PointLight::constant, PointLight::linear;
 
 PointLight::PointLight()
 {
 	toWorld = glm::mat4(1.0f);
-	ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-	diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
-	specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	color = glm::vec3(1.0f, 1.0f, 0.0f);
 	lightPos = glm::vec3(0.0f, 1.0f, 2.0f);
 	constant = 1.0f;
 	linear = 0.22f;

@@ -38,7 +38,7 @@ OBJObject::OBJObject(char* filepath, Material material)
 		3, // This second line tells us how any components there are per vertex. In this case, it's 3 (we have an x, y, and z component)
 		GL_FLOAT, // What type these components are
 		GL_FALSE, // GL_TRUE means the values should be normalized. GL_FALSE means they shouldn't
-		sizeof(glm::vec3), // Offset between consecutive indices. Since each of our vertices have 3 floats, they should have the size of 3 floats in between
+		3*sizeof(GLfloat), // Offset between consecutive indices. Since each of our vertices have 3 floats, they should have the size of 3 floats in between
 		(GLvoid*)0); // Offset of the first vertex's component. In our case it's 0 since we don't pad the vertices array with anything.
 
 	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
@@ -49,7 +49,7 @@ OBJObject::OBJObject(char* filepath, Material material)
 		3,                                // size
 		GL_FLOAT,                         // type
 		GL_FALSE,                         // normalized?
-		sizeof(glm::vec3),                                // stride
+		3*sizeof(GLfloat),                                // stride
 		(GLvoid*)0                          // array buffer offset
 	);
 
@@ -89,9 +89,7 @@ void OBJObject::draw(GLuint shaderProgram)
 	//uObjectColor = glGetUniformLocation(shaderProgram, "objectColor");
 	uViewPos = glGetUniformLocation(shaderProgram, "viewPos");
 
-	uPointLightAmbient = glGetUniformLocation(shaderProgram, "pointlight.ambient");
-	uPointLightDiffuse = glGetUniformLocation(shaderProgram, "pointlight.diffuse");
-	uPointLightSpecular = glGetUniformLocation(shaderProgram, "pointlight.specular");
+	uPointLightColor = glGetUniformLocation(shaderProgram, "pointlight.color");
 	uPointLightPos = glGetUniformLocation(shaderProgram, "pointlight.lightPos");
 	uPointLightConstant = glGetUniformLocation(shaderProgram, "pointlight.constant");
 	uPointLightLinear = glGetUniformLocation(shaderProgram, "pointlight.linear");
@@ -99,9 +97,7 @@ void OBJObject::draw(GLuint shaderProgram)
 	uSpotLightPos = glGetUniformLocation(shaderProgram, "spotlight.lightPos");
 	uSpotLightDirection = glGetUniformLocation(shaderProgram, "spotlight.lightDirection");
 	uSpotLightCutOff = glGetUniformLocation(shaderProgram, "spotlight.cutOff");
-	uSpotLightAmbient = glGetUniformLocation(shaderProgram, "spotlight.ambient");
-	uSpotLightDiffuse = glGetUniformLocation(shaderProgram, "spotlight.diffuse");
-	uSpotLightSpecular = glGetUniformLocation(shaderProgram, "spotlight.specular");
+	uSpotLightColor = glGetUniformLocation(shaderProgram, "spotlight.color");
 	uSpotLightConstant = glGetUniformLocation(shaderProgram, "spotlight.constant");
 	uSpotLightLinear = glGetUniformLocation(shaderProgram, "spotlight.linear");
 
@@ -120,18 +116,14 @@ void OBJObject::draw(GLuint shaderProgram)
 	glUniform3fv(uViewPos, 1, &Window::camPos[0]);
 
 	glUniform3fv(uPointLightPos, 1, &PointLight::lightPos[0]);
-	glUniform3fv(uPointLightAmbient, 1, &PointLight::ambient[0]);
-	glUniform3fv(uPointLightDiffuse, 1, &PointLight::diffuse[0]);
-	glUniform3fv(uPointLightSpecular, 1, &PointLight::specular[0]);
+	glUniform3fv(uPointLightColor, 1, &PointLight::color[0]);
 	glUniform1f(uPointLightConstant, PointLight::constant);
 	glUniform1f(uPointLightLinear, PointLight::linear);
 
 	glUniform3fv(uSpotLightPos, 1, &SpotLight::lightPos[0]);
 	glUniform3fv(uSpotLightDirection, 1, &SpotLight::lightDirection[0]);
 	glUniform1f(uSpotLightCutOff, SpotLight::cutOff);
-	glUniform3fv(uSpotLightAmbient, 1, &SpotLight::ambient[0]);
-	glUniform3fv(uSpotLightDiffuse, 1, &SpotLight::diffuse[0]);
-	glUniform3fv(uSpotLightSpecular, 1, &SpotLight::specular[0]);
+	glUniform3fv(uSpotLightColor, 1, &SpotLight::color[0]);
 	glUniform1f(uSpotLightConstant, SpotLight::constant);
 	glUniform1f(uSpotLightLinear, SpotLight::linear);
 
@@ -201,7 +193,7 @@ void OBJObject::parse(const char *filepath)
 		}
 		else if (c1 == 'f') {
 			GLuint f[6];
-			fscanf(fp, " %d//%d %d//%d %d//$d", &f[0], &f[1], &f[2], &f[3], &f[4], &f[5]);
+			fscanf(fp, " %u//%u %u//%u %u//$u", &f[0], &f[1], &f[2], &f[3], &f[4], &f[5]);
 			for(int i = 0; i < 6; i++)
 				this->indices.push_back(f[i]-1);
 		}
