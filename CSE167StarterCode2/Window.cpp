@@ -16,6 +16,9 @@ int Window::width;
 int Window::height;
 
 bool Window::movement = false;
+bool togglePointLight = false;
+bool toggleSpotLight = false;
+bool toggleModel = true;
 
 glm::vec3 Window::lastPoint;
 glm::mat4 Window::P;
@@ -156,6 +159,16 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			break;
 		case GLFW_KEY_N:
 			OBJObject::normalColor = (OBJObject::normalColor + 1) % 2;
+			break;
+		case GLFW_KEY_0:
+			toggleModel = !toggleModel;
+			break;
+		case GLFW_KEY_1:
+			togglePointLight = !togglePointLight;
+			break;
+		case GLFW_KEY_2:
+			toggleSpotLight = !toggleSpotLight;
+			break;
 		}		
 	}
 }
@@ -197,7 +210,17 @@ void Window::cursor_position_callback(GLFWwindow* window, double xpos, double yp
 			rot_angle = 0.1;
 			rotAxis = glm::cross(lastPoint, curPoint);
 			glm::mat4 rotMatrix = glm::rotate(glm::mat4(1.0f), rot_angle, rotAxis);
-			currentOBJ->toWorld = rotMatrix*currentOBJ->toWorld;
+			if (toggleModel) {
+				currentOBJ->toWorld = rotMatrix * currentOBJ->toWorld;
+			}
+			if (togglePointLight) {
+				glm::vec4 newPos = rotMatrix * glm::vec4(PointLight::lightPos.x, PointLight::lightPos.y, PointLight::lightPos.z, 1.0f);
+				PointLight::lightPos = glm::vec3(newPos.x, newPos.y, newPos.z);
+			}
+			if (toggleSpotLight) {
+				glm::vec4 newPos = rotMatrix * glm::vec4(SpotLight::lightPos.x, SpotLight::lightPos.y, SpotLight::lightPos.z, 1.0f);
+				SpotLight::lightPos = glm::vec3(newPos.x, newPos.y, newPos.z);
+			}
 		}
 
 		lastPoint = curPoint;
