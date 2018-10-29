@@ -21,22 +21,18 @@
   <ItemGroup>
     <ClInclude Include="..\Geometry.h" />
     <ClInclude Include="..\Node.h" />
-    <ClInclude Include="..\PointLight.h" />
     <ClInclude Include="..\Material.h" />
     <ClInclude Include="..\main.h" />
     <ClInclude Include="..\shader.h" />
-    <ClInclude Include="..\Spotlight.h" />
     <ClInclude Include="..\Transform.h" />
     <ClInclude Include="..\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Geometry.cpp" />
     <ClCompile Include="..\Node.cpp" />
-    <ClCompile Include="..\PointLight.cpp" />
     <ClCompile Include="..\Material.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\shader.cpp" />
-    <ClCompile Include="..\SpotLight.cpp" />
     <ClCompile Include="..\Transform.cpp" />
     <ClCompile Include="..\Window.cpp" />
   </ItemGroup>

@@ -9,8 +9,6 @@ Transform *robot, *wheelRot90x, *wheelRot90y, *wheelRot90z,
 	*armRot90x, *armTNegX, *armTPosX, *armTPosZ, *scaleArm,
 	*world;
 Transform *armyT[100];
-PointLight *light;
-SpotLight *spotlight;
 GLint objShader, lightShader;
 
 // Default camera parameters
@@ -22,8 +20,6 @@ int Window::width;
 int Window::height;
 
 bool Window::movement = false;
-bool togglePointLight = true;
-bool toggleSpotLight = true;
 bool toggleModel = true;
 int normalColor = 0;
 int eyeDir = 0;
@@ -123,9 +119,6 @@ void Window::initialize_objects()
 		armyT[i]->addChild(robot);
 		world->addChild(armyT[i]);
 	}
-
-	light = new PointLight();
-	spotlight = new SpotLight();
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	objShader = LoadShaders("../shader.vert", "../shader.frag");
@@ -231,10 +224,7 @@ void Window::display_callback(GLFWwindow* window)
 	// Clear the color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	world->draw(objShader, Window::V);
-	//light->draw(lightShader);
-	//spotlight->draw(lightShader);
-	
+	world->draw(objShader, Window::V);	
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
@@ -252,51 +242,21 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		case(GLFW_KEY_ESCAPE):
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
-		/*case GLFW_KEY_F1:
-			currentOBJ = dragon;
-			break;
-		case GLFW_KEY_F2:
-			currentOBJ = dragon;
-			break;
-		case GLFW_KEY_F3:
-			currentOBJ = dragon;
-			break;*/
 		case GLFW_KEY_N:
 			normalColor = (normalColor + 1) % 2;
 			break;
 		case GLFW_KEY_W:
-			/*if (mods == GLFW_MOD_SHIFT) {
-				SpotLight::coneAngle *= 1.1f;
-			}
-			else {
-				SpotLight::coneAngle *= 0.9f;
-			}
-			SpotLight::cutOff = glm::cos(glm::radians(SpotLight::coneAngle));
-			SpotLight::outerCutOff = glm::cos(glm::radians(SpotLight::coneAngle * SpotLight::outerCutOffMultiplier));*/
-			break;
-		case GLFW_KEY_E:
-			if (mods == GLFW_MOD_SHIFT) {
-				SpotLight::outerCutOffMultiplier *= 1.1f;
-			}
-			else {
-				SpotLight::outerCutOffMultiplier *= 0.9f;
-			}
-			SpotLight::outerCutOff = glm::cos(glm::radians(SpotLight::coneAngle * SpotLight::outerCutOffMultiplier));
 			break;
 		case GLFW_KEY_S:
-			SpotLight::currColor = SpotLight::currColor == glm::vec3(0.0f, 0.0f, 0.0f) ? SpotLight::actualColor : glm::vec3(0.0f, 0.0f, 0.0f);
 			break;
 		case GLFW_KEY_P:
-			PointLight::currColor = PointLight::currColor == glm::vec3(0.0f, 0.0f, 0.0f) ? PointLight::actualColor : glm::vec3(0.0f, 0.0f, 0.0f);
 			break;
 		case GLFW_KEY_0:
 			toggleModel = !toggleModel;
 			break;
 		case GLFW_KEY_1:
-			togglePointLight = !togglePointLight;
 			break;
 		case GLFW_KEY_2:
-			toggleSpotLight = !toggleSpotLight;
 			break;
 		}		
 	}
@@ -321,19 +281,7 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	if (toggleModel) {
-		robot->scale(yoffset > 0.0f ? 1.1 : 0.9);
-	}
-	else {
-		if (togglePointLight) {
-			PointLight::lightPos.x -= PointLight::lightPos.x / PointLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
-			PointLight::lightPos.y -= PointLight::lightPos.y / PointLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
-			PointLight::lightPos.z -= PointLight::lightPos.z / PointLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
-		}
-		if (toggleSpotLight) {
-			SpotLight::lightPos.x -= SpotLight::lightPos.x / SpotLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
-			SpotLight::lightPos.y -= SpotLight::lightPos.y / SpotLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
-			SpotLight::lightPos.z -= SpotLight::lightPos.z / SpotLight::lightPos.length() * (yoffset > 0 ? 0.5f : -0.5f);
-		}
+		world->scale(yoffset > 0.0f ? 1.1 : 0.9);
 	}
 }
 
@@ -353,19 +301,12 @@ void Window::cursor_position_callback(GLFWwindow* window, double xpos, double yp
 			rot_angle = 0.1;
 			rotAxis = glm::cross(lastPoint, curPoint);
 			glm::mat4 rotMatrix = glm::rotate(glm::mat4(1.0f), rot_angle, rotAxis);
-			/*if (toggleModel) {
-				robot->M = rotMatrix * robot->M;
+			if (toggleModel) {
+				world->M = rotMatrix * world->M;
 			}
-			if (togglePointLight) {
-				glm::vec4 newPos = rotMatrix * glm::vec4(PointLight::lightPos.x, PointLight::lightPos.y, PointLight::lightPos.z, 1.0f);
-				PointLight::lightPos = glm::vec3(newPos.x, newPos.y, newPos.z);
+			else {
+				Window::V = rotMatrix * Window::V;
 			}
-			if (toggleSpotLight) {
-				glm::vec4 newPos = rotMatrix * glm::vec4(SpotLight::lightPos.x, SpotLight::lightPos.y, SpotLight::lightPos.z, 1.0f);
-				SpotLight::lightPos = glm::vec3(newPos.x, newPos.y, newPos.z);
-				SpotLight::lightDirection = glm::normalize(-SpotLight::lightPos);
-			}*/
-			Window::V = rotMatrix * Window::V;
 		}
 
 		lastPoint = curPoint;

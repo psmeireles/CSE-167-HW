@@ -100,20 +100,6 @@ void Geometry::draw(GLuint shaderProgram, glm::mat4 C) {
 	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 	// Get the location of the uniform variables "projection" and "modelview"
 	//GLuint uObjectColor = glGetUniformLocation(shaderProgram, "objectColor");
-	GLuint uViewPos = glGetUniformLocation(shaderProgram, "viewPos");
-
-	GLuint uPointLightColor = glGetUniformLocation(shaderProgram, "pointlight.color");
-	GLuint uPointLightPos = glGetUniformLocation(shaderProgram, "pointlight.lightPos");
-	GLuint uPointLightConstant = glGetUniformLocation(shaderProgram, "pointlight.constant");
-	GLuint uPointLightLinear = glGetUniformLocation(shaderProgram, "pointlight.linear");
-
-	GLuint uSpotLightPos = glGetUniformLocation(shaderProgram, "spotlight.lightPos");
-	GLuint uSpotLightDirection = glGetUniformLocation(shaderProgram, "spotlight.lightDirection");
-	GLuint uSpotLightCutOff = glGetUniformLocation(shaderProgram, "spotlight.cutOff");
-	GLuint uSpotLightOuterCutOff = glGetUniformLocation(shaderProgram, "spotlight.outerCutOff");
-	GLuint uSpotLightColor = glGetUniformLocation(shaderProgram, "spotlight.color");
-	GLuint uSpotLightConstant = glGetUniformLocation(shaderProgram, "spotlight.constant");
-	GLuint uSpotLightLinear = glGetUniformLocation(shaderProgram, "spotlight.linear");
 
 	GLuint uMAmbient = glGetUniformLocation(shaderProgram, "material.ambient");
 	GLuint uMDiffuse = glGetUniformLocation(shaderProgram, "material.diffuse");
@@ -126,21 +112,6 @@ void Geometry::draw(GLuint shaderProgram, glm::mat4 C) {
 	GLuint uModel = glGetUniformLocation(shaderProgram, "model");
 	GLuint uView = glGetUniformLocation(shaderProgram, "view");
 	// Now send these values to the shader program
-	//glUniform3fv(uObjectColor, 1, &objectColor[0]);
-	glUniform3fv(uViewPos, 1, &Window::camPos[0]);
-
-	glUniform3fv(uPointLightPos, 1, &PointLight::lightPos[0]);
-	glUniform3fv(uPointLightColor, 1, &PointLight::currColor[0]);
-	glUniform1f(uPointLightConstant, PointLight::constant);
-	glUniform1f(uPointLightLinear, PointLight::linear);
-
-	glUniform3fv(uSpotLightPos, 1, &SpotLight::lightPos[0]);
-	glUniform3fv(uSpotLightDirection, 1, &SpotLight::lightDirection[0]);
-	glUniform1f(uSpotLightCutOff, SpotLight::cutOff);
-	glUniform1f(uSpotLightOuterCutOff, SpotLight::outerCutOff);
-	glUniform3fv(uSpotLightColor, 1, &SpotLight::currColor[0]);
-	glUniform1f(uSpotLightConstant, SpotLight::constant);
-	glUniform1f(uSpotLightLinear, SpotLight::linear);
 
 	glUniform3fv(uMAmbient, 1, &material.ambient[0]);
 	glUniform3fv(uMDiffuse, 1, &material.diffuse[0]);

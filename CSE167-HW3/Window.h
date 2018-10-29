@@ -10,11 +10,8 @@
 #include <GL/glew.h>
 #endif
 #include <GLFW/glfw3.h>
-#include "OBJObject.h"
 #include "Transform.h"
 #include "Geometry.h"
-#include "PointLight.h"
-#include "SpotLight.h"
 #include "shader.h"
 #include "Material.h"
 #include <glm/gtc/quaternion.hpp>
