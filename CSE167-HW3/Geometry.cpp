@@ -2,7 +2,7 @@
 
 
 
-Geometry::Geometry(char* filepath, Material material)
+Geometry::Geometry(char* filepath)
 {
 	toWorld = glm::mat4(1.0f);
 	min_x = std::numeric_limits<float>::max();
@@ -11,7 +11,6 @@ Geometry::Geometry(char* filepath, Material material)
 	max_x = std::numeric_limits<float>::lowest();
 	max_y = std::numeric_limits<float>::lowest();
 	max_z = std::numeric_limits<float>::lowest();
-	this->material = material;
 
 	parse(filepath);
 
@@ -101,22 +100,12 @@ void Geometry::draw(GLuint shaderProgram, glm::mat4 C) {
 	// Get the location of the uniform variables "projection" and "modelview"
 	//GLuint uObjectColor = glGetUniformLocation(shaderProgram, "objectColor");
 
-	GLuint uMAmbient = glGetUniformLocation(shaderProgram, "material.ambient");
-	GLuint uMDiffuse = glGetUniformLocation(shaderProgram, "material.diffuse");
-	GLuint uMSpecular = glGetUniformLocation(shaderProgram, "material.specular");
-	GLuint uMShininess = glGetUniformLocation(shaderProgram, "material.shininess");
-
 	GLuint uNormalColor = glGetUniformLocation(shaderProgram, "normalColor");
 
 	GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
 	GLuint uModel = glGetUniformLocation(shaderProgram, "model");
 	GLuint uView = glGetUniformLocation(shaderProgram, "view");
 	// Now send these values to the shader program
-
-	glUniform3fv(uMAmbient, 1, &material.ambient[0]);
-	glUniform3fv(uMDiffuse, 1, &material.diffuse[0]);
-	glUniform3fv(uMSpecular, 1, &material.specular[0]);
-	glUniform1f(uMShininess, material.shininess);
 
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
 	glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
@@ -347,6 +336,6 @@ void Geometry::loadTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }

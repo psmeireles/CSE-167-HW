@@ -29,13 +29,12 @@ private:
 	GLfloat min_x, max_x;
 	GLfloat min_y, max_y;
 	GLfloat min_z, max_z;
-	Material material;
 
 	void updateMinMaxCoordinates(float x, float y, float z);
 	void shiftAndResizeModel();
 	void loadTexture();
 public:
-	Geometry(char* filepath, Material material);
+	Geometry(char* filepath);
 	~Geometry();
 
 	void update();

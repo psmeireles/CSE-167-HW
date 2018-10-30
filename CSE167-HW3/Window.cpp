@@ -43,10 +43,10 @@ void Window::initialize_objects()
 		mTPosY = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 1.0, 0.0));
 
 	robot = new Transform(glm::mat4(1.0f));
-	torso = new Geometry("../obj/body_s.obj", Material(glm::vec3(1.0f, 0.41f, 0.7f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 32.0f));
-	eye = new Geometry("../obj/body_s.obj", Material(glm::vec3(1.0f, 0.41f, 0.7f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 32.0f));
-	wheel = new Geometry("../obj/eyeball_s.obj", Material(glm::vec3(1.0f, 0.41f, 0.7f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 32.0f));
-	arm = new Geometry("../obj/limb_s.obj", Material(glm::vec3(1.0f, 0.41f, 0.7f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 32.0f));
+	torso = new Geometry("../obj/body_s.obj");
+	eye = new Geometry("../obj/body_s.obj");
+	wheel = new Geometry("../obj/eyeball_s.obj");
+	arm = new Geometry("../obj/limb_s.obj");
 	wheelRot90x = new Transform(r90x);
 	wheelRot90y = new Transform(r90y);
 	wheelRot90z = new Transform(r90z);
