@@ -1,7 +1,7 @@
 #include "window.h"
 
 const char* window_title = "GLFW Starter Project";
-Geometry *torso, *wheel, *arm, *eye;
+Geometry *torso, *wheel, *arm, *eye, *hand;
 Transform *robot,
 	*torsoRot180x,
 	*wheelRot90x, *wheelRot90y, *wheelRot90z,
@@ -9,6 +9,7 @@ Transform *robot,
 	*neckTPosY, *scaleNeck,
 	*eyeTPosY, *eyeTNegX, *eyeTPosX, *eyeRot90x, *scaleEye,
 	*armRot90x, *armTNegX, *armTPosX, *armTPosZ, *scaleArm,
+	*handRot45Y, *handRotNeg45Y, *handTPosZ, *scaleHand,
 	*world;
 Transform *armyT[100];
 GLint objShader, lightShader;
@@ -25,7 +26,9 @@ bool Window::movement = false;
 bool toggleModel = true;
 int Window::normalColor = 0;
 int eyeDir = 0;
+int clapCount = 0;
 int signal = 1;
+int clapSignal = 1;
 bool first = true;
 
 glm::vec3 Window::lastPoint;
@@ -49,6 +52,7 @@ void Window::initialize_objects()
 	eye = new Geometry("../obj/body_s.obj");
 	wheel = new Geometry("../obj/eyeball_s.obj");
 	arm = new Geometry("../obj/limb_s.obj");
+	hand = new Geometry("../obj/limb_s.obj");
 
 	torsoRot180x = new Transform(r90x*r90x);
 
@@ -77,6 +81,13 @@ void Window::initialize_objects()
 	armTPosZ = new Transform(glm::translate(mTPosY, glm::vec3(0.0, -0.5, 0.0)));
 	armRot90x = new Transform(r90x);
 	scaleArm = new Transform(glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 1.0, 0.5)));
+
+	handTPosZ = new Transform(glm::translate(mTPosY, glm::vec3(0.0, 0.15, 0.0)));
+	glm::mat4 mRot45Y = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.15, 0.0))*glm::rotate(glm::mat4(1.0f), 3.14f / 4.0f, glm::vec3(0.0, 0.0, 1.0))*glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.15, 0.0));
+	glm::mat4 mRotNeg45Y = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.15, 0.0))*glm::rotate(glm::mat4(1.0f), 3.14f / 4.0f, glm::vec3(0.0, 0.0, -1.0))*glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.15, 0.0));
+	handRot45Y = new Transform(mRot45Y);
+	handRotNeg45Y = new Transform(mRotNeg45Y);
+	scaleHand = new Transform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1, 0.2, 0.5)));
 
 	world = new Transform(glm::mat4(1.0f));
 
@@ -119,13 +130,22 @@ void Window::initialize_objects()
 	armTNegX->addChild(scaleArm);
 	armTPosX->addChild(scaleArm);
 	scaleArm->addChild(arm);
+	armTNegX->addChild(handTPosZ);
+	armTPosX->addChild(handTPosZ);
 
-	for (int i = 0; i < 100; i++) {
+	// hands
+	handTPosZ->addChild(handRot45Y);
+	handTPosZ->addChild(handRotNeg45Y);
+	handRot45Y->addChild(scaleHand);
+	handRotNeg45Y->addChild(scaleHand);
+	scaleHand->addChild(hand);
+
+	/*for (int i = 0; i < 100; i++) {
 		armyT[i] = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(5.0*(i % 10) - 25.0, 0.0, 5.0*(i / 10) - 25.0)));
 		armyT[i]->addChild(robot);
 		world->addChild(armyT[i]);
-	}
-
+	}*/
+	world->addChild(robot);
 	// Load the shader program. Make sure you have the correct filepath up top
 	objShader = LoadShaders("../shader.vert", "../shader.frag");
 	lightShader = LoadShaders("../lightShader.vert", "../lightShader.frag");
@@ -213,6 +233,7 @@ void Window::idle_callback()
 	float eyeRot = 0.02;
 	eyeTPosY->M = glm::rotate(eyeTPosY->M, eyeRot*signal, glm::vec3(0.0, 0.0, 1.0));
 	neckTPosY->M = glm::translate(neckTPosY->M, glm::vec3(0.0, eyeRot*signal, 0.0));
+
 	eyeDir++;
 	if (eyeDir == 40 && first) {
 		eyeDir = 0;
@@ -222,6 +243,15 @@ void Window::idle_callback()
 	else if (eyeDir == 80) {
 		eyeDir = 0;
 		signal = -signal;
+	}
+
+	handRot45Y->M = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.15, 0.0))*glm::rotate(glm::mat4(1.0f), 3.14f / 4.0f / 45.0f * clapSignal, glm::vec3(0.0, 0.0, -1.0))*glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.15, 0.0))*handRot45Y->M;
+	handRotNeg45Y->M = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.15, 0.0))*glm::rotate(glm::mat4(1.0f), 3.14f / 4.0f / 45.0f * (-clapSignal), glm::vec3(0.0, 0.0, -1.0))*glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.15, 0.0))*handRotNeg45Y->M;
+
+	clapCount++;
+	if (clapCount == 45) {
+		clapCount = 0;
+		clapSignal = -clapSignal;
 	}
 }
 
