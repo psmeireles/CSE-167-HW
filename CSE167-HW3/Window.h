@@ -21,6 +21,7 @@ class Window
 public:
 	static int width;
 	static int height;
+	static int normalColor;
 	static bool movement;
 	static glm::vec3 camPos;
 	static glm::vec3 lastPoint;

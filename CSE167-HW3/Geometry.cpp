@@ -67,7 +67,7 @@ Geometry::Geometry(char* filepath)
 	// We've sent the vertex data over to OpenGL, but there's still something missing.
 	// In what order should it draw those vertices? That's why we'll need a GL_ELEMENT_ARRAY_BUFFER for this.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexIndices.size() * sizeof(GLuint), vertexIndices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
 	// Unbind the currently bound buffer so that we don't accidentally make unwanted changes to it.
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -106,14 +106,14 @@ void Geometry::draw(GLuint shaderProgram, glm::mat4 C) {
 	GLuint uModel = glGetUniformLocation(shaderProgram, "model");
 	GLuint uView = glGetUniformLocation(shaderProgram, "view");
 	// Now send these values to the shader program
-
+	glUniform1i(uNormalColor, Window::normalColor);
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
 	glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(uView, 1, GL_FALSE, &view[0][0]);
 	// Now draw the OBJObject. We simply need to bind the VAO associated with it.
 	glBindVertexArray(VAO);
 	// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
-	glDrawElements(GL_TRIANGLES, vertexIndices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	//glDrawArrays(GL_TRIANGLES, indices[0], indices.size());
 	// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
 	glBindVertexArray(0);
@@ -138,6 +138,9 @@ void Geometry::parse(const char *filepath)
 	std::vector<glm::vec3> tempVertices;
 	std::vector<glm::vec3> tempNormals;
 	std::vector<glm::vec2> tempTextures;
+	std::vector<GLuint> vertexIndices;
+	std::vector<GLuint> normalIndices;
+	std::vector<GLuint> texIndices;
 
 
 	FILE *fp = fopen(filepath, "rb");
@@ -154,15 +157,15 @@ void Geometry::parse(const char *filepath)
 
 			if (c2 == 'n') {
 				fscanf(fp, " %f %f %f", &x, &y, &z);
-				this->normals.push_back(glm::vec3(x, y, z));
+				tempNormals.push_back(glm::vec3(x, y, z));
 			}
 			else if (c2 == 't') {
 				fscanf(fp, " %f %f", &x, &y);
-				this->texels.push_back(glm::vec2(x, y));
+				tempTextures.push_back(glm::vec2(x, y));
 			}
 			else if (c2 == ' ') {
 				fscanf(fp, " %f %f %f", &x, &y, &z);
-				this->vertices.push_back(glm::vec3(x, y, z));
+				tempVertices.push_back(glm::vec3(x, y, z));
 				updateMinMaxCoordinates(x, y, z);
 			}
 		}
@@ -170,7 +173,7 @@ void Geometry::parse(const char *filepath)
 			GLuint f[9];
 			fscanf(fp, " %u/%u/%u %u/%u/%u %u/%u/%u", &f[0], &f[1], &f[2], &f[3], &f[4], &f[5], &f[6], &f[7], &f[8]);
 			for (int i = 0; i < 3; i++) {
-				this->vertexIndices.push_back(f[3*i] - 1);
+				vertexIndices.push_back(f[3*i] - 1);
 				texIndices.push_back(f[3*i+1] - 1);
 				normalIndices.push_back(f[3*i+2] - 1);
 			}
@@ -180,25 +183,12 @@ void Geometry::parse(const char *filepath)
 	fclose(fp);
 
 
-	//for (unsigned int v = 0; v < vertexIndices.size(); v += 3)
-	//{
-	//	// For each vertex of the triangle
-	//	for (unsigned int i = 0; i < 3; i += 1)
-	//	{
-	//		unsigned int vertexIndex = vertexIndices[v + i];
-	//		glm::vec3 vertex = tempVertices[vertexIndex];
-
-	//		unsigned int texIndex = texIndices[v + i];
-	//		glm::vec2 texel = tempTextures[texIndex];
-
-	//		unsigned int normalIndex = normalIndices[v + i];
-	//		glm::vec3 normal = tempNormals[normalIndex];
-
-	//		vertices.push_back(vertex);
-	//		texels.push_back(texel);
-	//		normals.push_back(normal);
-	//	}
-	//}
+	for (unsigned i = 0; i < vertexIndices.size(); i++) {
+		vertices.push_back(tempVertices[vertexIndices[i]]);
+		normals.push_back(tempNormals[normalIndices[i]]);
+		texels.push_back(tempTextures[texIndices[i]]);
+		indices.push_back(i);
+	}
 
 	shiftAndResizeModel();
 }

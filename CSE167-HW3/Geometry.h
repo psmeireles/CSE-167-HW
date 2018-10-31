@@ -20,9 +20,7 @@
 class Geometry:public Node
 {
 private:
-	std::vector<GLuint> vertexIndices;
-	std::vector<GLuint> texIndices;
-	std::vector<GLuint> normalIndices;
+	std::vector<GLuint> indices;
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texels;

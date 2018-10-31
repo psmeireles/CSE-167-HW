@@ -2,7 +2,9 @@
 
 const char* window_title = "GLFW Starter Project";
 Geometry *torso, *wheel, *arm, *eye;
-Transform *robot, *wheelRot90x, *wheelRot90y, *wheelRot90z,
+Transform *robot,
+	*torsoRot180x,
+	*wheelRot90x, *wheelRot90y, *wheelRot90z,
 	*wheelTNegZ, *wheelTPosZ, *wheelTNegX, *wheelTPosX, *wheelTNegY, *wheelTPosY, *scaleWheel,
 	*neckTPosY, *scaleNeck,
 	*eyeTPosY, *eyeTNegX, *eyeTPosX, *eyeRot90x, *scaleEye,
@@ -21,7 +23,7 @@ int Window::height;
 
 bool Window::movement = false;
 bool toggleModel = true;
-int normalColor = 0;
+int Window::normalColor = 0;
 int eyeDir = 0;
 int signal = 1;
 bool first = true;
@@ -47,6 +49,9 @@ void Window::initialize_objects()
 	eye = new Geometry("../obj/body_s.obj");
 	wheel = new Geometry("../obj/eyeball_s.obj");
 	arm = new Geometry("../obj/limb_s.obj");
+
+	torsoRot180x = new Transform(r90x*r90x);
+
 	wheelRot90x = new Transform(r90x);
 	wheelRot90y = new Transform(r90y);
 	wheelRot90z = new Transform(r90z);
@@ -76,7 +81,8 @@ void Window::initialize_objects()
 	world = new Transform(glm::mat4(1.0f));
 
 	// body
-	robot->addChild(torso);
+	robot->addChild(torsoRot180x);
+	torsoRot180x->addChild(torso);
 
 	// wheels
 	robot->addChild(wheelRot90x);
@@ -195,7 +201,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 	if (height > 0)
 	{
-		P = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
+		P = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 1000.0f);
 		V = glm::lookAt(camPos, cam_look_at, cam_up);
 	}
 }
@@ -243,7 +249,8 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		case GLFW_KEY_N:
-			normalColor = (normalColor + 1) % 2;
+			Window::normalColor = (Window::normalColor + 1) % 2;
+			printf("%d\n", normalColor);
 			break;
 		case GLFW_KEY_W:
 			break;
