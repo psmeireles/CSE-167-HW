@@ -11,11 +11,14 @@ out vec4 FragColor;
 
 uniform sampler2D ourTexture;
 uniform int normalColor;
+uniform int objIsSelected;
 
 void main()
 {    
-	if(normalColor == 1)
-		FragColor = vec4(Normal, 1.0);
+	if(objIsSelected == 0)
+		FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	else if(normalColor == 1)
+		FragColor = vec4(colorNormal, 1.0);
 	else
 		FragColor = texture(ourTexture, texel);
 }

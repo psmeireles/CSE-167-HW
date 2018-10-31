@@ -13,9 +13,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <list>
 #include "Node.h"
+#include "Window.h"
 
 class Transform:public Node
 {
+private:
+	void parseSphere();
 public:
 	Transform(glm::mat4 transform);
 	~Transform();
@@ -28,6 +31,12 @@ public:
 	void draw(GLuint shaderProgram, glm::mat4 C);
 	void update();
 	void scale(double);
+	void updateMinMaxCoordinates(float x, float y, float z);
+	void shiftAndResizeSphere();
+
+	bool objIsSelected;
+
+	GLuint VBO, VAO, EBO, normalBuffer;
 };
 
 #endif

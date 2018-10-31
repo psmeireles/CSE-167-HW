@@ -24,11 +24,7 @@ private:
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texels;
-	GLfloat min_x, max_x;
-	GLfloat min_y, max_y;
-	GLfloat min_z, max_z;
 
-	void updateMinMaxCoordinates(float x, float y, float z);
 	void shiftAndResizeModel();
 	void loadTexture();
 public:
@@ -40,6 +36,8 @@ public:
 	void scale(double);
 	void parse(const char* filepath);
 	void draw(GLuint shaderProgram, glm::mat4 C);
+	void updateMinMaxCoordinates(float x, float y, float z);
+	void shiftAndResizeSphere();
 
 	glm::mat4 toWorld;
 

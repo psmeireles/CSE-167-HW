@@ -13,7 +13,7 @@ Geometry::Geometry(char* filepath)
 	max_z = std::numeric_limits<float>::lowest();
 
 	parse(filepath);
-
+	objIsSelected = true;
 	// Create array object and buffers. Remember to delete your buffers when the object is destroyed!
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -101,15 +101,19 @@ void Geometry::draw(GLuint shaderProgram, glm::mat4 C) {
 	//GLuint uObjectColor = glGetUniformLocation(shaderProgram, "objectColor");
 
 	GLuint uNormalColor = glGetUniformLocation(shaderProgram, "normalColor");
+	GLuint uObjIsSelected = glGetUniformLocation(shaderProgram, "objIsSelected");
 
 	GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
 	GLuint uModel = glGetUniformLocation(shaderProgram, "model");
 	GLuint uView = glGetUniformLocation(shaderProgram, "view");
 	// Now send these values to the shader program
 	glUniform1i(uNormalColor, Window::normalColor);
+	glUniform1i(uObjIsSelected, objIsSelected);
+
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
 	glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(uView, 1, GL_FALSE, &view[0][0]);
+
 	// Now draw the OBJObject. We simply need to bind the VAO associated with it.
 	glBindVertexArray(VAO);
 	// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
@@ -328,4 +332,9 @@ void Geometry::loadTexture()
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
+
+void Geometry::shiftAndResizeSphere()
+{
+
 }

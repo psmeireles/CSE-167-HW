@@ -140,12 +140,14 @@ void Window::initialize_objects()
 	handRotNeg45Y->addChild(scaleHand);
 	scaleHand->addChild(hand);
 
-	/*for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 100; i++) {
 		armyT[i] = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(5.0*(i % 10) - 25.0, 0.0, 5.0*(i / 10) - 25.0)));
 		armyT[i]->addChild(robot);
 		world->addChild(armyT[i]);
-	}*/
-	world->addChild(robot);
+	}
+
+	//world->addChild(robot);
+
 	// Load the shader program. Make sure you have the correct filepath up top
 	objShader = LoadShaders("../shader.vert", "../shader.frag");
 	lightShader = LoadShaders("../lightShader.vert", "../lightShader.frag");
@@ -286,7 +288,8 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			break;
 		case GLFW_KEY_S:
 			break;
-		case GLFW_KEY_P:
+		case GLFW_KEY_C:
+			robot->objIsSelected = !robot->objIsSelected;
 			break;
 		case GLFW_KEY_0:
 			toggleModel = !toggleModel;
