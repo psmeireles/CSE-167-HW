@@ -48,6 +48,7 @@ public:
 
 	static std::vector<glm::vec3> planesNormals;
 	static std::vector<glm::vec3> planesPoints;
+	static bool culling;
 };
 
 #endif

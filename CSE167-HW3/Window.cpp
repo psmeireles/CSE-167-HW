@@ -11,11 +11,11 @@ Transform *robot,
 	*armRot90x, *armTNegX, *armTPosX, *armTPosZ, *scaleArm,
 	*handRot45Y, *handRotNeg45Y, *handTPosZ, *scaleHand,
 	*world;
-Transform *armyT[100];
+Transform *armyT[1000];
 GLint objShader, lightShader;
 
 // Default camera parameters
-glm::vec3 Window::camPos(0.0f, 10.0f, 30.0f);		// e  | Position of camera
+glm::vec3 Window::camPos(0.0f, 0.0f, 30.0f);		// e  | Position of camera
 glm::vec3 cam_look_at(0.0f, 0.0f, 0.0f);	// d  | This is where the camera looks at
 glm::vec3 cam_up(0.0f, 1.0f, 0.0f);			// up | What orientation "up" is
 
@@ -27,6 +27,7 @@ float Window::nearDist, Window::farDist, Window::hNear, Window::wNear, Window::h
 glm::vec3 Window::fc, Window::fbl, Window::ftl, Window::fbr, Window::ftr,
 	Window::nc, Window::nbl, Window::ntl, Window::nbr, Window::ntr;
 std::vector<glm::vec3> Window::planesNormals, Window::planesPoints;
+bool Window::culling = true;
 
 bool Window::movement = false;
 bool toggleModel = true;
@@ -144,8 +145,8 @@ void Window::initialize_objects()
 	handRotNeg45Y->addChild(scaleHand);
 	scaleHand->addChild(arm);
 
-	for (int i = 0; i < 100; i++) {
-		armyT[i] = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(5.0*(i % 10) - 25.0, 0.0, 5.0*(i / 10) - 25.0)));
+	for (int i = 0; i < 1000; i++) {
+		armyT[i] = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(5.0*(i % 100) - 25.0, 0.0, 5.0*(i / 100) - 25.0)));
 		armyT[i]->addChild(robot);
 		world->addChild(armyT[i]);
 	}
@@ -240,16 +241,16 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 		fc = camPos + d * farDist;
 
 		ftl = fc + (cam_up * (hFar / 2.0f)) - (right * (wFar / 2.0f));
-		ftr = fc + (cam_up * (hFar / 2.0f)) + (right * (wFar / 2.0f));
-		fbl = fc - (cam_up * (hFar / 2.0f)) - (right * (wFar / 2.0f));
-		fbr = fc - (cam_up * (hFar / 2.0f)) + (right * (wFar / 2.0f));
+		ftr = ftl + right * wFar;
+		fbl = ftl - cam_up * hFar;
+		fbr = fbl + right * wFar;
 
 		nc = camPos + d * nearDist;
 
 		ntl = nc + (cam_up * (hNear / 2.0f)) - (right * (wNear / 2.0f));
-		ntr = nc + (cam_up * (hNear / 2.0f)) + (right * (wNear / 2.0f));
-		nbl = nc - (cam_up * (hNear / 2.0f)) - (right * (wNear / 2.0f));
-		nbr = nc - (cam_up * (hNear / 2.0f)) + (right * (wNear / 2.0f));
+		ntr = ntl + right * wNear;
+		nbl = ntl - cam_up * hNear;
+		nbr = nbl + right * wNear;
 
 		planesPoints.clear();
 		planesPoints.push_back(nc);		// near
@@ -328,7 +329,8 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			Window::normalColor = (Window::normalColor + 1) % 2;
 			printf("%d\n", normalColor);
 			break;
-		case GLFW_KEY_W:
+		case GLFW_KEY_TAB:
+			Window::culling = !Window::culling;
 			break;
 		case GLFW_KEY_S:
 			break;
@@ -391,7 +393,7 @@ void Window::cursor_position_callback(GLFWwindow* window, double xpos, double yp
 			else {
 				glm::mat4 rotMatrix = glm::rotate(glm::mat4(1.0f), -rot_angle, rotAxis);
 				cam_up = rotMatrix * glm::vec4(cam_up, 1.0f);
-				cam_look_at = rotMatrix * glm::vec4((cam_look_at - camPos), 1.0);
+				cam_look_at = camPos + glm::vec3(rotMatrix * glm::vec4((cam_look_at - camPos), 1.0));
 
 				glm::vec3 d = glm::normalize(cam_look_at - camPos);
 				glm::vec3 right = glm::normalize(glm::cross(d, cam_up));

@@ -79,7 +79,7 @@ void Transform::draw(GLuint shaderProgram, glm::mat4 C)
 	glm::mat4 newC = C * M;
 	glm::vec3 newCenter = newC * glm::vec4(center, 1.0f);
 
-	//if (isVisible(newCenter, radius)) {
+	if (!Window::culling || isVisible(newCenter, radius)) {
 		if (objIsSelected) {
 			for (std::list<Node*>::iterator it = childNodes.begin(); it != childNodes.end(); ++it)
 				(*it)->draw(shaderProgram, newC);
@@ -117,7 +117,7 @@ void Transform::draw(GLuint shaderProgram, glm::mat4 C)
 			// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
 			glBindVertexArray(0);
 		}
-	//}
+	}
 }
 
 void Transform::update()
