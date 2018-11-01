@@ -26,6 +26,9 @@ public:
 	glm::mat4 M;
 	std::list<Node*> childNodes;
 
+	float radius;
+	glm::vec3 center;
+
 	void addChild(Node* node);
 	void removeChild();
 	void draw(GLuint shaderProgram, glm::mat4 C);
@@ -33,6 +36,7 @@ public:
 	void scale(double);
 	void updateMinMaxCoordinates(float x, float y, float z);
 	void shiftAndResizeSphere();
+	bool isVisible(glm::vec3 point, float r);
 
 	bool objIsSelected;
 

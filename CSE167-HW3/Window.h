@@ -15,12 +15,15 @@
 #include "shader.h"
 #include "Material.h"
 #include <glm/gtc/quaternion.hpp>
+#include <vector>
 
 class Window
 {
 public:
 	static int width;
 	static int height;
+	static float fov;
+	static float ratio;
 	static int normalColor;
 	static bool movement;
 	static glm::vec3 camPos;
@@ -38,6 +41,13 @@ public:
 	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 	static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 	static glm::vec3 trackBallMapping(glm::vec2 point);
+
+	static float nearDist, farDist, hNear, wNear, hFar, wFar;
+	static glm::vec3 fc, fbl, ftl, fbr, ftr, nc, nbl, ntl, nbr, ntr;
+	static float dist(glm::vec3 planeNormal, glm::vec3 planePoint, glm::vec3 point);
+
+	static std::vector<glm::vec3> planesNormals;
+	static std::vector<glm::vec3> planesPoints;
 };
 
 #endif

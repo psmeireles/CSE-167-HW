@@ -76,45 +76,48 @@ void Transform::removeChild()
 
 void Transform::draw(GLuint shaderProgram, glm::mat4 C)
 {
-	if (objIsSelected) {
-		glm::mat4 newC = C * M;
-		for (std::list<Node*>::iterator it = childNodes.begin(); it != childNodes.end(); ++it)
-			(*it)->draw(shaderProgram, newC);
-	}
-	else {
-		glUseProgram(shaderProgram);
+	glm::mat4 newC = C * M;
+	glm::vec3 newCenter = newC * glm::vec4(center, 1.0f);
 
-		// Calculate the combination of the model and view (camera inverse) matrices
-		glm::mat4 model = M;
-		glm::mat4 view = C;
+	//if (isVisible(newCenter, radius)) {
+		if (objIsSelected) {
+			for (std::list<Node*>::iterator it = childNodes.begin(); it != childNodes.end(); ++it)
+				(*it)->draw(shaderProgram, newC);
+		}
+		else {
+			glUseProgram(shaderProgram);
 
-		// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
-		// Consequently, we need to forward the projection, view, and model matrices to the shader programs
-		// Get the location of the uniform variables "projection" and "modelview"
-		//GLuint uObjectColor = glGetUniformLocation(shaderProgram, "objectColor");
+			// Calculate the combination of the model and view (camera inverse) matrices
+			glm::mat4 model = M;
+			glm::mat4 view = C;
 
-		GLuint uNormalColor = glGetUniformLocation(shaderProgram, "normalColor");
-		GLuint uObjIsSelected = glGetUniformLocation(shaderProgram, "objIsSelected");
+			// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
+			// Consequently, we need to forward the projection, view, and model matrices to the shader programs
+			// Get the location of the uniform variables "projection" and "modelview"
+			//GLuint uObjectColor = glGetUniformLocation(shaderProgram, "objectColor");
 
-		GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
-		GLuint uModel = glGetUniformLocation(shaderProgram, "model");
-		GLuint uView = glGetUniformLocation(shaderProgram, "view");
-		// Now send these values to the shader program
-		glUniform1i(uNormalColor, Window::normalColor);
-		glUniform1i(uObjIsSelected, false);
+			GLuint uNormalColor = glGetUniformLocation(shaderProgram, "normalColor");
+			GLuint uObjIsSelected = glGetUniformLocation(shaderProgram, "objIsSelected");
 
-		glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
-		glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
-		glUniformMatrix4fv(uView, 1, GL_FALSE, &view[0][0]);
+			GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
+			GLuint uModel = glGetUniformLocation(shaderProgram, "model");
+			GLuint uView = glGetUniformLocation(shaderProgram, "view");
+			// Now send these values to the shader program
+			glUniform1i(uNormalColor, Window::normalColor);
+			glUniform1i(uObjIsSelected, false);
 
-		// Now draw the OBJObject. We simply need to bind the VAO associated with it.
-		glBindVertexArray(VAO);
-		// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
-		glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
-		// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
-		glBindVertexArray(0);
-	}
-	
+			glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
+			glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
+			glUniformMatrix4fv(uView, 1, GL_FALSE, &view[0][0]);
+
+			// Now draw the OBJObject. We simply need to bind the VAO associated with it.
+			glBindVertexArray(VAO);
+			// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
+			glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
+			// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
+			glBindVertexArray(0);
+		}
+	//}
 }
 
 void Transform::update()
@@ -196,6 +199,9 @@ void Transform::shiftAndResizeSphere() {
 		sphereVertices[i].z -= avg_z;
 		sphereVertices[i].z /= max_coord/2.5;
 	}
+
+	radius = 2.5;
+	center = glm::vec3(0.0, 0.5, 0.0);
 }
 
 void Transform::updateMinMaxCoordinates(float x, float y, float z)
@@ -206,4 +212,14 @@ void Transform::updateMinMaxCoordinates(float x, float y, float z)
 	if (y < min_y) min_y = y;
 	if (z > max_z) max_z = z;
 	if (z < min_z) min_z = z;
+}
+
+bool Transform::isVisible(glm::vec3 point, float r)
+{
+	for (int i = 0; i < Window::planesNormals.size(); i++) {
+		float dist = Window::dist(Window::planesNormals[i], Window::planesPoints[i], point);
+		if (dist < -r)
+			return false;
+	}
+	return true;
 }

@@ -1,7 +1,7 @@
 #include "window.h"
 
 const char* window_title = "GLFW Starter Project";
-Geometry *torso, *wheel, *arm, *eye, *hand;
+Geometry *torso, *wheel, *arm;
 Transform *robot,
 	*torsoRot180x,
 	*wheelRot90x, *wheelRot90y, *wheelRot90z,
@@ -21,6 +21,12 @@ glm::vec3 cam_up(0.0f, 1.0f, 0.0f);			// up | What orientation "up" is
 
 int Window::width;
 int Window::height;
+float Window::fov;
+float Window::ratio;
+float Window::nearDist, Window::farDist, Window::hNear, Window::wNear, Window::hFar, Window::wFar;
+glm::vec3 Window::fc, Window::fbl, Window::ftl, Window::fbr, Window::ftr,
+	Window::nc, Window::nbl, Window::ntl, Window::nbr, Window::ntr;
+std::vector<glm::vec3> Window::planesNormals, Window::planesPoints;
 
 bool Window::movement = false;
 bool toggleModel = true;
@@ -49,10 +55,8 @@ void Window::initialize_objects()
 
 	robot = new Transform(glm::mat4(1.0f));
 	torso = new Geometry("../obj/body_s.obj");
-	eye = new Geometry("../obj/body_s.obj");
 	wheel = new Geometry("../obj/eyeball_s.obj");
 	arm = new Geometry("../obj/limb_s.obj");
-	hand = new Geometry("../obj/limb_s.obj");
 
 	torsoRot180x = new Transform(r90x*r90x);
 
@@ -120,7 +124,7 @@ void Window::initialize_objects()
 	eyeTPosY->addChild(eyeTPosX);
 	eyeTNegX->addChild(scaleEye);
 	eyeTPosX->addChild(scaleEye);
-	scaleEye->addChild(eye);
+	scaleEye->addChild(torso);
 
 	// arms
 	robot->addChild(armRot90x);
@@ -138,7 +142,7 @@ void Window::initialize_objects()
 	handTPosZ->addChild(handRotNeg45Y);
 	handRot45Y->addChild(scaleHand);
 	handRotNeg45Y->addChild(scaleHand);
-	scaleHand->addChild(hand);
+	scaleHand->addChild(arm);
 
 	for (int i = 0; i < 100; i++) {
 		armyT[i] = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(5.0*(i % 10) - 25.0, 0.0, 5.0*(i / 10) - 25.0)));
@@ -159,7 +163,6 @@ void Window::clean_up()
 	delete(torso);
 	delete(arm);
 	delete(wheel);
-	delete(eye);
 	glDeleteProgram(objShader);
 	glDeleteProgram(lightShader);
 }
@@ -223,7 +226,48 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 	if (height > 0)
 	{
-		P = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 1000.0f);
+		glm::vec3 d = glm::normalize(cam_look_at - camPos);
+		glm::vec3 right = glm::normalize(glm::cross(d, cam_up));
+		fov = glm::radians(45.0f);
+		ratio = (float)width / (float)height;
+		nearDist = 0.1f;
+		farDist = 1000.0f;
+		hNear = 2 * tan(fov / 2.0f) * nearDist;
+		wNear = hNear * ratio;
+		hFar = 2 * tan(fov / 2.0f) * farDist;
+		wFar = hFar * ratio;
+
+		fc = camPos + d * farDist;
+
+		ftl = fc + (cam_up * (hFar / 2.0f)) - (right * (wFar / 2.0f));
+		ftr = fc + (cam_up * (hFar / 2.0f)) + (right * (wFar / 2.0f));
+		fbl = fc - (cam_up * (hFar / 2.0f)) - (right * (wFar / 2.0f));
+		fbr = fc - (cam_up * (hFar / 2.0f)) + (right * (wFar / 2.0f));
+
+		nc = camPos + d * nearDist;
+
+		ntl = nc + (cam_up * (hNear / 2.0f)) - (right * (wNear / 2.0f));
+		ntr = nc + (cam_up * (hNear / 2.0f)) + (right * (wNear / 2.0f));
+		nbl = nc - (cam_up * (hNear / 2.0f)) - (right * (wNear / 2.0f));
+		nbr = nc - (cam_up * (hNear / 2.0f)) + (right * (wNear / 2.0f));
+
+		planesPoints.clear();
+		planesPoints.push_back(nc);		// near
+		planesPoints.push_back(fc);		// far
+		planesPoints.push_back(fbr);	// right
+		planesPoints.push_back(fbl);	// left
+		planesPoints.push_back(nbl);	// bottom
+		planesPoints.push_back(ntl);	// top
+
+		planesNormals.clear();
+		planesNormals.push_back(glm::normalize(glm::cross(ntl - nbl, nbr - nbl)));	// near
+		planesNormals.push_back(glm::normalize(glm::cross(fbr - fbl, ftl - fbl)));	// far
+		planesNormals.push_back(glm::normalize(glm::cross(ntr - nbr, fbr - nbr)));	// right
+		planesNormals.push_back(glm::normalize(glm::cross(fbl - nbl, ntl - nbl)));	// left
+		planesNormals.push_back(glm::normalize(glm::cross(nbr - nbl, fbl - nbl)));	// bottom
+		planesNormals.push_back(glm::normalize(glm::cross(ntl - ntr, ftr - ntr)));	// top
+
+		P = glm::perspective(fov, ratio, nearDist, farDist);
 		V = glm::lookAt(camPos, cam_look_at, cam_up);
 	}
 }
@@ -338,14 +382,51 @@ void Window::cursor_position_callback(GLFWwindow* window, double xpos, double yp
 
 		if (velocity > 0.0001) {
 			glm::vec3 rotAxis;
-			rot_angle = 0.1;
 			rotAxis = glm::cross(lastPoint, curPoint);
-			glm::mat4 rotMatrix = glm::rotate(glm::mat4(1.0f), rot_angle, rotAxis);
+			rot_angle = 0.1;
 			if (toggleModel) {
+				glm::mat4 rotMatrix = glm::rotate(glm::mat4(1.0f), rot_angle, rotAxis);
 				world->M = rotMatrix * world->M;
 			}
 			else {
-				Window::V = rotMatrix * Window::V;
+				glm::mat4 rotMatrix = glm::rotate(glm::mat4(1.0f), -rot_angle, rotAxis);
+				cam_up = rotMatrix * glm::vec4(cam_up, 1.0f);
+				cam_look_at = rotMatrix * glm::vec4((cam_look_at - camPos), 1.0);
+
+				glm::vec3 d = glm::normalize(cam_look_at - camPos);
+				glm::vec3 right = glm::normalize(glm::cross(d, cam_up));
+
+				fc = camPos + d * farDist;
+
+				ftl = fc + (cam_up * (hFar / 2.0f)) - (right * (wFar / 2.0f));
+				ftr = ftl + right * wFar;
+				fbl = ftl - cam_up * hFar;
+				fbr = fbl + right * wFar;
+
+				nc = camPos + d * nearDist;
+
+				ntl = nc + (cam_up * (hNear / 2.0f)) - (right * (wNear / 2.0f));
+				ntr = ntl + right * wNear;
+				nbl = ntl - cam_up * hNear;
+				nbr = nbl + right * wNear;
+
+				planesPoints.clear();
+				planesPoints.push_back(nc);		// near
+				planesPoints.push_back(fc);		// far
+				planesPoints.push_back(fbr);	// right
+				planesPoints.push_back(fbl);	// left
+				planesPoints.push_back(nbl);	// bottom
+				planesPoints.push_back(ntl);	// top
+
+				planesNormals.clear();
+				planesNormals.push_back(glm::normalize(glm::cross(ntl - nbl, nbr - nbl)));	// near
+				planesNormals.push_back(glm::normalize(glm::cross(fbr - fbl, ftl - fbl)));	// far
+				planesNormals.push_back(glm::normalize(glm::cross(ntr - nbr, fbr - nbr)));	// right
+				planesNormals.push_back(glm::normalize(glm::cross(fbl - nbl, ntl - nbl)));	// left
+				planesNormals.push_back(glm::normalize(glm::cross(nbr - nbl, fbl - nbl)));	// bottom
+				planesNormals.push_back(glm::normalize(glm::cross(ntl - ntr, ftr - ntr)));	// top
+
+				Window::V = glm::lookAt(camPos, cam_look_at, cam_up);
 			}
 		}
 
@@ -367,4 +448,10 @@ glm::vec3 Window::trackBallMapping(glm::vec2 point)
 	v.y /= v.length();
 	v.z /= v.length();
 	return v;
+}
+
+float Window::dist(glm::vec3 planeNormal, glm::vec3 planePoint, glm::vec3 point) {
+	float dist = glm::dot(point - planePoint, planeNormal);
+
+	return dist;
 }
