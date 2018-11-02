@@ -13,7 +13,6 @@
 #include "Transform.h"
 #include "Geometry.h"
 #include "shader.h"
-#include "Material.h"
 #include <glm/gtc/quaternion.hpp>
 #include <vector>
 

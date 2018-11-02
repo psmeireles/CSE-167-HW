@@ -152,9 +152,6 @@ void Window::initialize_objects()
 		world->addChild(armyT[i]);
 	}
 
-	world->radius = 999999;
-	robot->radius = 2.5;
-
 	// Load the shader program. Make sure you have the correct filepath up top
 	objShader = LoadShaders("../shader.vert", "../shader.frag");
 	lightShader = LoadShaders("../lightShader.vert", "../lightShader.frag");

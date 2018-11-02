@@ -14,7 +14,6 @@
 #include <list>
 #include <vector>
 #include "Node.h"
-#include "Material.h"
 #include "Window.h"
 
 class Geometry:public Node
