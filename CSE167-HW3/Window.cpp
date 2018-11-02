@@ -37,6 +37,7 @@ int clapCount = 0;
 int signal = 1;
 int clapSignal = 1;
 bool first = true;
+bool debugMode = false;
 
 glm::vec3 Window::lastPoint;
 glm::mat4 Window::P;
@@ -146,12 +147,13 @@ void Window::initialize_objects()
 	scaleHand->addChild(arm);
 
 	for (int i = 0; i < 1000; i++) {
-		armyT[i] = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(5.0*(i % 100) - 25.0, 0.0, 5.0*(i / 100) - 25.0)));
+		armyT[i] = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(5.0*(i % 100) - 250.0, 0.0, 5.0*(i / 100) - 25.0)));
 		armyT[i]->addChild(robot);
 		world->addChild(armyT[i]);
 	}
 
-	//world->addChild(robot);
+	world->radius = 999999;
+	robot->radius = 2.5;
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	objShader = LoadShaders("../shader.vert", "../shader.frag");
@@ -220,7 +222,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 #ifdef __APPLE__
 	glfwGetFramebufferSize(window, &width, &height); // In case your Mac has a retina display
 #endif
-	Window::width = width;
+	Window::width = height;
 	Window::height = height;
 	// Set the viewport size. This is the only matrix that OpenGL maintains for us in modern OpenGL!
 	glViewport(0, 0, width, height);
@@ -252,7 +254,6 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 		nbl = ntl - cam_up * hNear;
 		nbr = nbl + right * wNear;
 
-		planesPoints.clear();
 		planesPoints.push_back(nc);		// near
 		planesPoints.push_back(fc);		// far
 		planesPoints.push_back(fbr);	// right
@@ -260,7 +261,6 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 		planesPoints.push_back(nbl);	// bottom
 		planesPoints.push_back(ntl);	// top
 
-		planesNormals.clear();
 		planesNormals.push_back(glm::normalize(glm::cross(ntl - nbl, nbr - nbl)));	// near
 		planesNormals.push_back(glm::normalize(glm::cross(fbr - fbl, ftl - fbl)));	// far
 		planesNormals.push_back(glm::normalize(glm::cross(ntr - nbr, fbr - nbr)));	// right
@@ -307,8 +307,10 @@ void Window::display_callback(GLFWwindow* window)
 	// Clear the color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	world->draw(objShader, Window::V);	
-
+	world->draw(objShader, Window::V);
+	int i = 0;
+	printf("%d\n", Transform::nRendered);
+	//printf("Number of Robots: %d\n", Transform::nRendered);
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
 	// Swap buffers
@@ -327,22 +329,23 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		case GLFW_KEY_N:
 			Window::normalColor = (Window::normalColor + 1) % 2;
-			printf("%d\n", normalColor);
 			break;
 		case GLFW_KEY_TAB:
 			Window::culling = !Window::culling;
 			break;
-		case GLFW_KEY_S:
-			break;
 		case GLFW_KEY_C:
 			robot->objIsSelected = !robot->objIsSelected;
 			break;
+		case GLFW_KEY_D:
+			if(debugMode == false)
+				P = glm::perspective(glm::radians(80.0f), ratio, nearDist, farDist);
+			else
+				P = glm::perspective(fov, ratio, nearDist, farDist);
+
+			debugMode = !debugMode;
+
 		case GLFW_KEY_0:
 			toggleModel = !toggleModel;
-			break;
-		case GLFW_KEY_1:
-			break;
-		case GLFW_KEY_2:
 			break;
 		}		
 	}
@@ -411,22 +414,6 @@ void Window::cursor_position_callback(GLFWwindow* window, double xpos, double yp
 				ntr = ntl + right * wNear;
 				nbl = ntl - cam_up * hNear;
 				nbr = nbl + right * wNear;
-
-				planesPoints.clear();
-				planesPoints.push_back(nc);		// near
-				planesPoints.push_back(fc);		// far
-				planesPoints.push_back(fbr);	// right
-				planesPoints.push_back(fbl);	// left
-				planesPoints.push_back(nbl);	// bottom
-				planesPoints.push_back(ntl);	// top
-
-				planesNormals.clear();
-				planesNormals.push_back(glm::normalize(glm::cross(ntl - nbl, nbr - nbl)));	// near
-				planesNormals.push_back(glm::normalize(glm::cross(fbr - fbl, ftl - fbl)));	// far
-				planesNormals.push_back(glm::normalize(glm::cross(ntr - nbr, fbr - nbr)));	// right
-				planesNormals.push_back(glm::normalize(glm::cross(fbl - nbl, ntl - nbl)));	// left
-				planesNormals.push_back(glm::normalize(glm::cross(nbr - nbl, fbl - nbl)));	// bottom
-				planesNormals.push_back(glm::normalize(glm::cross(ntl - ntr, ftr - ntr)));	// top
 
 				Window::V = glm::lookAt(camPos, cam_look_at, cam_up);
 			}

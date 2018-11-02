@@ -40,6 +40,9 @@ public:
 
 	bool objIsSelected;
 
+	int lastState;
+	static int nRendered;
+
 	GLuint VBO, VAO, EBO, normalBuffer;
 };
 

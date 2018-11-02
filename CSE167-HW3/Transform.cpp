@@ -1,5 +1,7 @@
 #include "Transform.h"
 
+int Transform::nRendered = 0;
+
 Transform::Transform(glm::mat4 transform)
 {
 	this->M = transform;
@@ -12,6 +14,7 @@ Transform::Transform(glm::mat4 transform)
 
 	parseSphere();
 	objIsSelected = true;
+	lastState = 0;
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -80,6 +83,10 @@ void Transform::draw(GLuint shaderProgram, glm::mat4 C)
 	glm::vec3 newCenter = newC * glm::vec4(center, 1.0f);
 
 	if (!Window::culling || isVisible(newCenter, radius)) {
+		if (lastState == 0) {
+			lastState = 1;
+			Transform::nRendered++;
+		}
 		if (objIsSelected) {
 			for (std::list<Node*>::iterator it = childNodes.begin(); it != childNodes.end(); ++it)
 				(*it)->draw(shaderProgram, newC);
@@ -116,6 +123,12 @@ void Transform::draw(GLuint shaderProgram, glm::mat4 C)
 			glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
 			// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
 			glBindVertexArray(0);
+		}
+	}
+	else {
+		if (lastState == 1) {
+			lastState = 0;
+			Transform::nRendered--;
 		}
 	}
 }
@@ -218,8 +231,23 @@ bool Transform::isVisible(glm::vec3 point, float r)
 {
 	for (int i = 0; i < Window::planesNormals.size(); i++) {
 		float dist = Window::dist(Window::planesNormals[i], Window::planesPoints[i], point);
-		if (dist < -r)
+		if (dist < -r) {
+			/*if (i==0)
+				printf("near ");
+			if (i == 1)
+				printf("far ");
+			if (i == 2)
+				printf("right ");
+			if (i == 3)
+				printf("left ");
+			if (i == 4)
+				printf("bottom ");
+			if (i == 5)
+				printf("top ");
+			printf("- %f\n", dist);
+			printf("%f, %f, %f\n", point.x, point.y, point.z);*/
 			return false;
+		}
 	}
 	return true;
 }
