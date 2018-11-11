@@ -1,18 +1,11 @@
 #include "window.h"
 
 const char* window_title = "GLFW Starter Project";
-Geometry *torso, *wheel, *arm;
-Transform *robot,
-	*torsoRot180x,
-	*wheelRot90x, *wheelRot90y, *wheelRot90z,
-	*wheelTNegZ, *wheelTPosZ, *wheelTNegX, *wheelTPosX, *wheelTNegY, *wheelTPosY, *scaleWheel,
-	*neckTPosY, *scaleNeck,
-	*eyeTPosY, *eyeTNegX, *eyeTPosX, *eyeRot90x, *scaleEye,
-	*armRot90x, *armTNegX, *armTPosX, *armTPosZ, *scaleArm,
-	*handRot45Y, *handRotNeg45Y, *handTPosZ, *scaleHand,
-	*world;
+Geometry *sphere;
+Cube *cube;
+Transform *world;
 Transform *armyT[1000];
-GLint objShader, lightShader;
+GLint Window::objShader, Window::cubeShader;
 
 // Default camera parameters
 glm::vec3 Window::camPos(0.0f, 0.0f, 30.0f);		// e  | Position of camera
@@ -21,6 +14,7 @@ glm::vec3 cam_up(0.0f, 1.0f, 0.0f);			// up | What orientation "up" is
 
 int Window::width;
 int Window::height;
+float Window::yaw = 0, Window::pitch = 0;
 float Window::fov;
 float Window::ratio;
 float Window::nearDist, Window::farDist, Window::hNear, Window::wNear, Window::hFar, Window::wFar;
@@ -29,6 +23,7 @@ glm::vec3 Window::fc, Window::fbl, Window::ftl, Window::fbr, Window::ftr,
 std::vector<glm::vec3> Window::planesNormals, Window::planesPoints;
 bool Window::culling = true;
 
+bool firstMouse = true;
 bool Window::movement = false;
 bool toggleModel = true;
 int Window::normalColor = 0;
@@ -39,134 +34,41 @@ int clapSignal = 1;
 bool first = true;
 bool debugMode = false;
 
-glm::vec3 Window::lastPoint;
+glm::vec2 Window::lastPoint = glm::vec2(0.0f, 0.0f);
 glm::mat4 Window::P;
 glm::mat4 Window::V;
 
+//float points[36][3];
+
 void Window::initialize_objects()
 {
-	glm::mat4 r90x = glm::rotate(glm::mat4(1.0f), 3.14f / 2.0f, glm::vec3(1.0, 0.0, 0.0)),
-		r90y = glm::rotate(glm::mat4(1.0f), 3.14f / 2.0f, glm::vec3(0.0, 1.0, 0.0)),
-		r90z = glm::rotate(glm::mat4(1.0f), 3.14f / 2.0f, glm::vec3(0.0, 0.0, 1.0)),
-		mTNegZ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -1.0)),
-		mTPosZ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, 1.0)),
-		mTNegX = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0, 0.0, 0.0)),
-		mTPosX = glm::translate(glm::mat4(1.0f), glm::vec3(1.0, 0.0, 0.0)),
-		mTNegY = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -1.0, 0.0)),
-		mTPosY = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 1.0, 0.0));
+	sphere = new Geometry("../obj/sphere.obj");
+	world = new Transform(glm::mat4(0.4f));
 
-	robot = new Transform(glm::mat4(1.0f));
-	torso = new Geometry("../obj/body_s.obj");
-	wheel = new Geometry("../obj/eyeball_s.obj");
-	arm = new Geometry("../obj/limb_s.obj");
-
-	torsoRot180x = new Transform(r90x*r90x);
-
-	wheelRot90x = new Transform(r90x);
-	wheelRot90y = new Transform(r90y);
-	wheelRot90z = new Transform(r90z);
-	wheelTNegZ = new Transform(mTNegZ);
-	wheelTPosZ = new Transform(mTPosZ);
-	wheelTNegX = new Transform(mTNegX);
-	wheelTPosX = new Transform(mTPosX);
-	wheelTNegY = new Transform(mTNegY);
-	wheelTPosY = new Transform(mTPosY);
-	scaleWheel = new Transform(glm::scale(glm::mat4(1.0f), glm::vec3(0.3, 0.3, 0.3)));
-
-	neckTPosY = new Transform(mTPosY);
-	scaleNeck = new Transform(glm::scale(glm::mat4(1.0f), glm::vec3(0.2, 1.0, 0.2)));
-
-	eyeTNegX = new Transform(glm::translate(mTNegX, glm::vec3(0.6, 0.0, 0.0)));
-	eyeTPosX = new Transform(glm::translate(mTPosX, glm::vec3(-0.6, 0.0, 0.0)));
-	eyeTPosY = new Transform(glm::translate(mTNegZ, glm::vec3(0.0, 0.0, -0.2)));
-	eyeRot90x = new Transform(r90x);
-	scaleEye = new Transform(glm::scale(glm::mat4(1.0f), glm::vec3(0.4, 0.5, 0.4)));
-
-	armTNegX = new Transform(mTNegX);
-	armTPosX = new Transform(mTPosX);
-	armTPosZ = new Transform(glm::translate(mTPosY, glm::vec3(0.0, -0.5, 0.0)));
-	armRot90x = new Transform(r90x);
-	scaleArm = new Transform(glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 1.0, 0.5)));
-
-	handTPosZ = new Transform(glm::translate(mTPosY, glm::vec3(0.0, 0.15, 0.0)));
-	glm::mat4 mRot45Y = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.15, 0.0))*glm::rotate(glm::mat4(1.0f), 3.14f / 4.0f, glm::vec3(0.0, 0.0, 1.0))*glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.15, 0.0));
-	glm::mat4 mRotNeg45Y = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.15, 0.0))*glm::rotate(glm::mat4(1.0f), 3.14f / 4.0f, glm::vec3(0.0, 0.0, -1.0))*glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.15, 0.0));
-	handRot45Y = new Transform(mRot45Y);
-	handRotNeg45Y = new Transform(mRotNeg45Y);
-	scaleHand = new Transform(glm::scale(glm::mat4(1.0f), glm::vec3(0.1, 0.2, 0.5)));
-
-	world = new Transform(glm::mat4(1.0f));
-
-	// body
-	robot->addChild(torsoRot180x);
-	torsoRot180x->addChild(torso);
-
-	// wheels
-	robot->addChild(wheelRot90x);
-	wheelRot90x->addChild(wheelTNegX);
-	wheelRot90x->addChild(wheelTPosX);
-	wheelTNegX->addChild(wheelTPosZ);	// left wheels
-	wheelTPosX->addChild(wheelTPosZ);	// right wheels
-	wheelTPosZ->addChild(scaleWheel);
-	wheelTPosZ->addChild(wheelTPosY);
-	wheelTPosZ->addChild(wheelTNegY);
-	wheelTNegY->addChild(scaleWheel);
-	wheelTPosY->addChild(scaleWheel);
-	scaleWheel->addChild(wheel);
-
-	// neck
-	robot->addChild(neckTPosY);
-	neckTPosY->addChild(scaleNeck);
-	scaleNeck->addChild(torso);
-
-	// eyes
-	neckTPosY->addChild(eyeRot90x);
-	eyeRot90x->addChild(eyeTPosY);
-	eyeTPosY->addChild(eyeTNegX);
-	eyeTPosY->addChild(eyeTPosX);
-	eyeTNegX->addChild(scaleEye);
-	eyeTPosX->addChild(scaleEye);
-	scaleEye->addChild(torso);
-
-	// arms
-	robot->addChild(armRot90x);
-	armRot90x->addChild(armTPosZ);
-	armTPosZ->addChild(armTNegX);
-	armTPosZ->addChild(armTPosX);
-	armTNegX->addChild(scaleArm);
-	armTPosX->addChild(scaleArm);
-	scaleArm->addChild(arm);
-	armTNegX->addChild(handTPosZ);
-	armTPosX->addChild(handTPosZ);
-
-	// hands
-	handTPosZ->addChild(handRot45Y);
-	handTPosZ->addChild(handRotNeg45Y);
-	handRot45Y->addChild(scaleHand);
-	handRotNeg45Y->addChild(scaleHand);
-	scaleHand->addChild(arm);
-
-	for (int i = 0; i < 1000; i++) {
-		armyT[i] = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(5.0*(i % 100) - 250.0, 0.0, 5.0*(i / 100) - 25.0)));
-		armyT[i]->addChild(robot);
-		world->addChild(armyT[i]);
-	}
-
+	cube = new Cube();
+	world->addChild(cube);
+	world->addChild(sphere);
 	world->radius = 9999999;
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	objShader = LoadShaders("../shader.vert", "../shader.frag");
-	lightShader = LoadShaders("../lightShader.vert", "../lightShader.frag");
+	cubeShader = LoadShaders("../cubeShader.vert", "../cubeShader.frag");
+
+	/*for (int i = 0; i < 36; i++) {
+
+		points[i][0] = 1 - (i > 16 ? i - 16 : i) % 16 * 0.125;
+		points[i][1] = 0.0f;
+		points[i][0] = (i > 8 ? (i < 24 ?  i - 2*(i-8) : i - 36) : i) % 16 * 0.125;
+	}*/
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
 void Window::clean_up()
 {
-	delete(torso);
-	delete(arm);
-	delete(wheel);
+	delete(sphere);
+	delete(cube);
 	glDeleteProgram(objShader);
-	glDeleteProgram(lightShader);
+	glDeleteProgram(cubeShader);
 }
 
 GLFWwindow* Window::create_window(int width, int height)
@@ -274,31 +176,6 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 void Window::idle_callback()
 {
-	wheel->toWorld = glm::rotate(wheel->toWorld, 0.1f, glm::vec3(1.0, 0.0, 0.0));
-
-	float eyeRot = 0.02;
-	eyeTPosY->M = glm::rotate(eyeTPosY->M, eyeRot*signal, glm::vec3(0.0, 0.0, 1.0));
-	neckTPosY->M = glm::translate(neckTPosY->M, glm::vec3(0.0, eyeRot*signal, 0.0));
-
-	eyeDir++;
-	if (eyeDir == 40 && first) {
-		eyeDir = 0;
-		signal = -signal;
-		first = false;
-	}
-	else if (eyeDir == 80) {
-		eyeDir = 0;
-		signal = -signal;
-	}
-
-	handRot45Y->M = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.15, 0.0))*glm::rotate(glm::mat4(1.0f), 3.14f / 4.0f / 45.0f * clapSignal, glm::vec3(0.0, 0.0, -1.0))*glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.15, 0.0))*handRot45Y->M;
-	handRotNeg45Y->M = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, -0.15, 0.0))*glm::rotate(glm::mat4(1.0f), 3.14f / 4.0f / 45.0f * (-clapSignal), glm::vec3(0.0, 0.0, -1.0))*glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.15, 0.0))*handRotNeg45Y->M;
-
-	clapCount++;
-	if (clapCount == 45) {
-		clapCount = 0;
-		clapSignal = -clapSignal;
-	}
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -307,6 +184,24 @@ void Window::display_callback(GLFWwindow* window)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	world->draw(objShader, Window::V);
+
+	//int numPoints = 36;
+	//// Create and draw the curves for every 4 points
+	//for (int i = 0; (i + 3) < numPoints; i += 3)
+	//{
+	//	// The evaluator with a stride of 3 and an order of 4
+	//	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 4, &points[i][0]);
+
+	//	// Draw the curve
+	//	glBegin(GL_POINTS);  // Use GL_LINE_STRIP instead to fill the gaps
+	//	{
+	//		for (int i = 0; i < 150; i++)
+	//		{
+	//			glEvalCoord1f(((float)i) / 150.0);
+	//		}
+	//	}
+	//	glEnd();
+	//}
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
 	// Swap buffers
@@ -318,7 +213,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 	// Check for a key press
 	if (action == GLFW_PRESS)
 	{
-		float cameraSpeed = 1.0f;
+		float cameraSpeed = 2.5f;
 		glm::vec3 camDir = glm::normalize(cam_look_at - camPos);
 		switch (key) {
 		// Check if escape was pressed
@@ -331,9 +226,6 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		case GLFW_KEY_TAB:
 			Window::culling = !Window::culling;
 			break;
-		case GLFW_KEY_C:
-			robot->objIsSelected = !robot->objIsSelected;
-			break;
 		case GLFW_KEY_1:
 			if(debugMode == false)
 				P = glm::perspective(glm::radians(80.0f), ratio, nearDist, farDist);
@@ -345,31 +237,23 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			toggleModel = !toggleModel;
 			break;
 		case GLFW_KEY_W:
-			printf("%f, %f, %f\n", camPos.x, camPos.y, camPos.z);
 			camPos += cameraSpeed*camDir;
 			cam_look_at = camPos + camDir;
-			printf("%f, %f, %f\n", camPos.x, camPos.y, camPos.z);
 			V = glm::lookAt(camPos, cam_look_at, cam_up);
 			break;
 		case GLFW_KEY_A:
-			printf("%f, %f, %f\n", camPos.x, camPos.y, camPos.z);
 			camPos -= glm::normalize(glm::cross(camDir, cam_up)) * cameraSpeed;
 			cam_look_at = camPos + camDir;
-			printf("%f, %f, %f\n", camPos.x, camPos.y, camPos.z);
 			V = glm::lookAt(camPos, cam_look_at, cam_up);
 			break;
 		case GLFW_KEY_S:
-			printf("%f, %f, %f\n", camPos.x, camPos.y, camPos.z);
 			camPos -= cameraSpeed * camDir;
 			cam_look_at = camPos + camDir;
-			printf("%f, %f, %f\n", camPos.x, camPos.y, camPos.z);
 			V = glm::lookAt(camPos, cam_look_at, cam_up);
 			break;
 		case GLFW_KEY_D:
-			printf("%f, %f, %f\n", camPos.x, camPos.y, camPos.z);
 			camPos += glm::normalize(glm::cross(camDir, cam_up)) * cameraSpeed;
 			cam_look_at = camPos + camDir;
-			printf("%f, %f, %f\n", camPos.x, camPos.y, camPos.z);
 			V = glm::lookAt(camPos, cam_look_at, cam_up);
 			break;
 		}		
@@ -384,7 +268,7 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 
 			double xpos, ypos;
 			glfwGetCursorPos(window, &xpos, &ypos);
-			lastPoint = trackBallMapping(glm::vec2(xpos, ypos));
+			lastPoint = glm::vec2(xpos, ypos);
 		}
 		else if (action == GLFW_RELEASE) {
 			movement = false;
@@ -405,46 +289,58 @@ void Window::cursor_position_callback(GLFWwindow* window, double xpos, double yp
 	float rot_angle;
 	glm::vec3 curPoint;
 	glm::vec2 point = glm::vec2(xpos, ypos);
+	
+	if (firstMouse)
+	{
+		lastPoint.x = xpos;
+		lastPoint.y = ypos;
+		firstMouse = false;
+	}
 	if (movement) {
-		curPoint = trackBallMapping(point);
-		direction = curPoint - lastPoint;
-		float velocity = direction.length();
 
-		if (velocity > 0.0001) {
-			glm::vec3 rotAxis;
-			rotAxis = glm::cross(lastPoint, curPoint);
-			rot_angle = 0.1;
-			if (toggleModel) {
-				glm::mat4 rotMatrix = glm::rotate(glm::mat4(1.0f), rot_angle, rotAxis);
-				world->M = rotMatrix * world->M;
-			}
-			else {
-				glm::mat4 rotMatrix = glm::rotate(glm::mat4(1.0f), -rot_angle, rotAxis);
-				cam_up = rotMatrix * glm::vec4(cam_up, 1.0f);
-				cam_look_at = camPos + glm::vec3(rotMatrix * glm::vec4((cam_look_at - camPos), 1.0));
+		float xoffset = xpos - lastPoint.x;
+		float yoffset = lastPoint.y - ypos;
+		lastPoint.x = xpos;
+		lastPoint.y = ypos;
 
-				glm::vec3 d = glm::normalize(cam_look_at - camPos);
-				glm::vec3 right = glm::normalize(glm::cross(d, cam_up));
+		float sensitivity = 0.1;
 
-				fc = camPos + d * farDist;
+		xoffset *= sensitivity;
+		yoffset *= sensitivity;
 
-				ftl = fc + (cam_up * (hFar / 2.0f)) - (right * (wFar / 2.0f));
-				ftr = ftl + right * wFar;
-				fbl = ftl - cam_up * hFar;
-				fbr = fbl + right * wFar;
+		yaw += xoffset;
+		pitch += yoffset;
 
-				nc = camPos + d * nearDist;
+		if (pitch > 89.0f)
+			pitch = 89.0f;
+		if (pitch < -89.0f)
+			pitch = -89.0f;
 
-				ntl = nc + (cam_up * (hNear / 2.0f)) - (right * (wNear / 2.0f));
-				ntr = ntl + right * wNear;
-				nbl = ntl - cam_up * hNear;
-				nbr = nbl + right * wNear;
+		glm::vec3 front;
+		front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+		front.y = sin(glm::radians(pitch));
+		front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+		cam_look_at = camPos + glm::normalize(front);
 
-				Window::V = glm::lookAt(camPos, cam_look_at, cam_up);
-			}
-		}
+		glm::vec3 d = glm::normalize(cam_look_at - camPos);
+		glm::vec3 right = glm::normalize(glm::cross(d, cam_up));
 
-		lastPoint = curPoint;
+		fc = camPos + d * farDist;
+
+		ftl = fc + (cam_up * (hFar / 2.0f)) - (right * (wFar / 2.0f));
+		ftr = ftl + right * wFar;
+		fbl = ftl - cam_up * hFar;
+		fbr = fbl + right * wFar;
+
+		nc = camPos + d * nearDist;
+
+		ntl = nc + (cam_up * (hNear / 2.0f)) - (right * (wNear / 2.0f));
+		ntr = ntl + right * wNear;
+		nbl = ntl - cam_up * hNear;
+		nbr = nbl + right * wNear;
+
+		Window::V = glm::lookAt(camPos, cam_look_at, cam_up);
+
 	}
 }
 

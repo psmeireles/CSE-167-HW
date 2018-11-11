@@ -12,6 +12,7 @@
 #include <GLFW/glfw3.h>
 #include "Transform.h"
 #include "Geometry.h"
+#include "Cube.h"
 #include "shader.h"
 #include <glm/gtc/quaternion.hpp>
 #include <vector>
@@ -21,12 +22,13 @@ class Window
 public:
 	static int width;
 	static int height;
+	static float yaw, pitch;
 	static float fov;
 	static float ratio;
 	static int normalColor;
 	static bool movement;
 	static glm::vec3 camPos;
-	static glm::vec3 lastPoint;
+	static glm::vec2 lastPoint;
 	static glm::mat4 P; // P for projection
 	static glm::mat4 V; // V for view
 	static void initialize_objects();
@@ -48,6 +50,7 @@ public:
 	static std::vector<glm::vec3> planesNormals;
 	static std::vector<glm::vec3> planesPoints;
 	static bool culling;
+	static GLint objShader, cubeShader;
 };
 
 #endif

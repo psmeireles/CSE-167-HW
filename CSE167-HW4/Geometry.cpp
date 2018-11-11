@@ -1,6 +1,16 @@
 #include "Geometry.h"
 
+using namespace std;
+unsigned int loadCubemap2(vector<std::string> faces);
 
+std::vector<std::string> faces = {
+	"../skybox/right.jpg",
+	"../skybox/left.jpg",
+	"../skybox/top.jpg",
+	"../skybox/bottom.jpg",
+	"../skybox/front.jpg",
+	"../skybox/back.jpg"
+};
 
 Geometry::Geometry(char* filepath)
 {
@@ -75,7 +85,7 @@ Geometry::Geometry(char* filepath)
 	// NOTE: You must NEVER unbind the element array buffer associated with a VAO!
 	glBindVertexArray(0);
 
-	loadTexture();
+	unsigned int cubemapTexture = loadCubemap2(faces);
 }
 
 
@@ -98,21 +108,15 @@ void Geometry::draw(GLuint shaderProgram, glm::mat4 C) {
 	// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 	// Get the location of the uniform variables "projection" and "modelview"
-	//GLuint uObjectColor = glGetUniformLocation(shaderProgram, "objectColor");
-
-	GLuint uNormalColor = glGetUniformLocation(shaderProgram, "normalColor");
-	GLuint uObjIsSelected = glGetUniformLocation(shaderProgram, "objIsSelected");
-
 	GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
 	GLuint uModel = glGetUniformLocation(shaderProgram, "model");
 	GLuint uView = glGetUniformLocation(shaderProgram, "view");
+	GLuint uCamPos = glGetUniformLocation(shaderProgram, "cameraPos");
 	// Now send these values to the shader program
-	glUniform1i(uNormalColor, Window::normalColor);
-	glUniform1i(uObjIsSelected, objIsSelected);
-
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
 	glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(uView, 1, GL_FALSE, &view[0][0]);
+	glUniform3fv(uCamPos, 1, &Window::camPos[0]);
 
 	// Now draw the OBJObject. We simply need to bind the VAO associated with it.
 	glBindVertexArray(VAO);
@@ -136,16 +140,10 @@ void Geometry::scale(double x)
 
 void Geometry::parse(const char *filepath)
 {
+
 	// Populate the face indices, vertices, and normals vectors with the OBJ Object data
 	char c1, c2;
 	GLfloat x, y, z;
-	std::vector<glm::vec3> tempVertices;
-	std::vector<glm::vec3> tempNormals;
-	std::vector<glm::vec2> tempTextures;
-	std::vector<GLuint> vertexIndices;
-	std::vector<GLuint> normalIndices;
-	std::vector<GLuint> texIndices;
-
 
 	FILE *fp = fopen(filepath, "rb");
 	if (fp == NULL) {
@@ -161,40 +159,26 @@ void Geometry::parse(const char *filepath)
 
 			if (c2 == 'n') {
 				fscanf(fp, " %f %f %f", &x, &y, &z);
-				tempNormals.push_back(glm::vec3(x, y, z));
-			}
-			else if (c2 == 't') {
-				fscanf(fp, " %f %f", &x, &y);
-				tempTextures.push_back(glm::vec2(x, y));
+				this->normals.push_back(glm::vec3(x, y, z));
 			}
 			else if (c2 == ' ') {
 				fscanf(fp, " %f %f %f", &x, &y, &z);
-				tempVertices.push_back(glm::vec3(x, y, z));
+				this->vertices.push_back(glm::vec3(x, y, z));
 				updateMinMaxCoordinates(x, y, z);
 			}
 		}
 		else if (c1 == 'f') {
-			GLuint f[9];
-			fscanf(fp, " %u/%u/%u %u/%u/%u %u/%u/%u", &f[0], &f[1], &f[2], &f[3], &f[4], &f[5], &f[6], &f[7], &f[8]);
-			for (int i = 0; i < 3; i++) {
-				vertexIndices.push_back(f[3*i] - 1);
-				texIndices.push_back(f[3*i+1] - 1);
-				normalIndices.push_back(f[3*i+2] - 1);
-			}
+			GLuint f[6];
+			fscanf(fp, " %u//%u %u//%u %u//$u", &f[0], &f[1], &f[2], &f[3], &f[4], &f[5]);
+			for (int i = 0; i < 3; i++)
+				this->indices.push_back(f[2 * i] - 1);
 		}
 		c1 = fgetc(fp);
 	}
 	fclose(fp);
 
+	shiftAndResizeSphere();
 
-	for (unsigned i = 0; i < vertexIndices.size(); i++) {
-		vertices.push_back(tempVertices[vertexIndices[i]]);
-		normals.push_back(tempNormals[normalIndices[i]]);
-		texels.push_back(tempTextures[texIndices[i]]);
-		indices.push_back(i);
-	}
-
-	shiftAndResizeModel();
 }
 
 void Geometry::updateMinMaxCoordinates(float x, float y, float z)
@@ -254,84 +238,38 @@ void Geometry::shiftAndResizeModel()
 	min_z /= max_coord;
 }
 
-unsigned char* loadPPM(const char* filename, int& width, int& height)
+unsigned int loadCubemap2(vector<std::string> faces)
 {
-	const int BUFSIZE = 128;
-	FILE* fp;
-	unsigned int read;
-	unsigned char* rawData;
-	char buf[3][BUFSIZE];
-	char* retval_fgets;
-	size_t retval_sscanf;
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
-	if ((fp = fopen(filename, "rb")) == NULL)
+	int width, height, nrChannels;
+	for (unsigned int i = 0; i < faces.size(); i++)
 	{
-		std::cerr << "error reading ppm file, could not locate " << filename << std::endl;
-		width = 0;
-		height = 0;
-		return NULL;
+		unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+			);
+			stbi_image_free(data);
+		}
+		else
+		{
+			printf("Cubemap texture failed to load at path: %s\n", faces[i]);
+			stbi_image_free(data);
+		}
 	}
 
-	// Read magic number:
-	retval_fgets = fgets(buf[0], BUFSIZE, fp);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	// Read width and height:
-	do
-	{
-		retval_fgets = fgets(buf[0], BUFSIZE, fp);
-	} while (buf[0][0] == '#');
-	retval_sscanf = sscanf(buf[0], "%s %s", buf[1], buf[2]);
-	width = atoi(buf[1]);
-	height = atoi(buf[2]);
-
-	// Read maxval:
-	do
-	{
-		retval_fgets = fgets(buf[0], BUFSIZE, fp);
-	} while (buf[0][0] == '#');
-
-	// Read image data:
-	rawData = new unsigned char[width * height * 3];
-	read = fread(rawData, width * height * 3, 1, fp);
-	fclose(fp);
-	if (read != 1)
-	{
-		std::cerr << "error parsing ppm file, incomplete data" << std::endl;
-		delete[] rawData;
-		width = 0;
-		height = 0;
-		return NULL;
-	}
-
-	return rawData;
-}
-
-// load image file into texture object
-void Geometry::loadTexture()
-{
-	GLuint texture[1];     // storage for one texture
-	int twidth, theight;   // texture width/height [pixels]
-	unsigned char* tdata;  // texture pixel data
-
-	// Load image file
-	tdata = loadPPM("../walle.ppm", twidth, theight);
-	if (tdata == NULL) return;
-
-	// Create ID for texture
-	glGenTextures(1, &texture[0]);
-
-	// Set this texture to be the one we are working with
-	glBindTexture(GL_TEXTURE_2D, texture[0]);
-
-	// Generate the texture
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, twidth, theight, 0, GL_RGB, GL_UNSIGNED_BYTE, tdata);
-
-	// Set bi-linear filtering for both minification and magnification
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	return textureID;
 }
 
 void Geometry::shiftAndResizeSphere()
