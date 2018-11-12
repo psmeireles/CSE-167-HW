@@ -23,11 +23,12 @@ private:
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texels;
+	glm::vec3 color;
+	GLuint shader;
 
 	void shiftAndResizeModel();
-	void loadTexture();
 public:
-	Geometry(char* filepath);
+	Geometry(char* filepath, GLuint shader, glm::vec3 color);
 	~Geometry();
 
 	void update();

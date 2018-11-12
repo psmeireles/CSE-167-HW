@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Cube.h" />
+    <ClInclude Include="..\Curve.h" />
     <ClInclude Include="..\Geometry.h" />
     <ClInclude Include="..\Node.h" />
     <ClInclude Include="..\main.h" />
@@ -30,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Cube.cpp" />
+    <ClCompile Include="..\Curve.cpp" />
     <ClCompile Include="..\Geometry.cpp" />
     <ClCompile Include="..\Node.cpp" />
     <ClCompile Include="..\main.cpp" />
@@ -39,6 +41,8 @@
     <ClCompile Include="..\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\colorShader.frag" />
+    <None Include="..\colorShader.vert" />
     <None Include="..\cubeShader.frag" />
     <None Include="..\cubeShader.vert" />
     <None Include="..\shader.frag" />

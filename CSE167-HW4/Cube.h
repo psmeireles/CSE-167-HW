@@ -48,7 +48,7 @@ public:
 
 	glm::mat4 toWorld;
 
-	GLuint VBO, VAO, EBO, normalBuffer, texBuffer;
+	GLuint VBO, VAO, normalBuffer;
 };
 
 #endif

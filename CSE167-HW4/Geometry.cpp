@@ -12,7 +12,7 @@ std::vector<std::string> faces = {
 	"../skybox/back.jpg"
 };
 
-Geometry::Geometry(char* filepath)
+Geometry::Geometry(char* filepath, GLuint shader, glm::vec3 color)
 {
 	toWorld = glm::mat4(1.0f);
 	min_x = std::numeric_limits<float>::max();
@@ -23,6 +23,8 @@ Geometry::Geometry(char* filepath)
 	max_z = std::numeric_limits<float>::lowest();
 
 	parse(filepath);
+	this->color = color;
+	this->shader = shader;
 	objIsSelected = true;
 	// Create array object and buffers. Remember to delete your buffers when the object is destroyed!
 	glGenVertexArrays(1, &VAO);
@@ -99,7 +101,7 @@ Geometry::~Geometry()
 
 void Geometry::draw(GLuint shaderProgram, glm::mat4 C) {
 
-	glUseProgram(shaderProgram);
+	glUseProgram(shader);
 
 	// Calculate the combination of the model and view (camera inverse) matrices
 	glm::mat4 model = toWorld;
@@ -108,15 +110,17 @@ void Geometry::draw(GLuint shaderProgram, glm::mat4 C) {
 	// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 	// Get the location of the uniform variables "projection" and "modelview"
-	GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
-	GLuint uModel = glGetUniformLocation(shaderProgram, "model");
-	GLuint uView = glGetUniformLocation(shaderProgram, "view");
-	GLuint uCamPos = glGetUniformLocation(shaderProgram, "cameraPos");
+	GLuint uProjection = glGetUniformLocation(shader, "projection");
+	GLuint uColor = glGetUniformLocation(shader, "color");
+	GLuint uModel = glGetUniformLocation(shader, "model");
+	GLuint uView = glGetUniformLocation(shader, "view");
+	GLuint uCamPos = glGetUniformLocation(shader, "cameraPos");
 	// Now send these values to the shader program
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
 	glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(uView, 1, GL_FALSE, &view[0][0]);
 	glUniform3fv(uCamPos, 1, &Window::camPos[0]);
+	glUniform3fv(uColor, 1, &this->color[0]);
 
 	// Now draw the OBJObject. We simply need to bind the VAO associated with it.
 	glBindVertexArray(VAO);

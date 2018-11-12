@@ -13,9 +13,11 @@
 #include "Transform.h"
 #include "Geometry.h"
 #include "Cube.h"
+#include "Curve.h"
 #include "shader.h"
 #include <glm/gtc/quaternion.hpp>
 #include <vector>
+#include <cstdlib>
 
 class Window
 {

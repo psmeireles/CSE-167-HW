@@ -33,10 +33,13 @@
     <ClInclude Include="..\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\stb_image.h">
+    <ClInclude Include="..\Curve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,10 +62,13 @@
     <ClCompile Include="..\Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\stb_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\Cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\stb_image.cpp">
+    <ClCompile Include="..\Curve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -78,6 +84,12 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="..\cubeShader.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\colorShader.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\colorShader.vert">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

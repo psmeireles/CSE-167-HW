@@ -1,14 +1,15 @@
 #include "window.h"
 
 const char* window_title = "GLFW Starter Project";
-Geometry *sphere;
+Geometry *sphere, *redPoint, *greenPoint;
 Cube *cube;
-Transform *world;
+Curve *curve[8];
+Transform *world, *anchorTranslations[8], *controlTranslations[16];
 Transform *armyT[1000];
-GLint Window::objShader, Window::cubeShader;
+GLint Window::objShader, Window::cubeShader, colorShader;
 
 // Default camera parameters
-glm::vec3 Window::camPos(0.0f, 0.0f, 30.0f);		// e  | Position of camera
+glm::vec3 Window::camPos(0.0f, 0.0f, 150.0f);		// e  | Position of camera
 glm::vec3 cam_look_at(0.0f, 0.0f, 0.0f);	// d  | This is where the camera looks at
 glm::vec3 cam_up(0.0f, 1.0f, 0.0f);			// up | What orientation "up" is
 
@@ -38,28 +39,57 @@ glm::vec2 Window::lastPoint = glm::vec2(0.0f, 0.0f);
 glm::mat4 Window::P;
 glm::mat4 Window::V;
 
-//float points[36][3];
+std::vector<glm::vec3> points[8];
 
 void Window::initialize_objects()
 {
-	sphere = new Geometry("../obj/sphere.obj");
-	world = new Transform(glm::mat4(0.4f));
-
-	cube = new Cube();
-	world->addChild(cube);
-	world->addChild(sphere);
-	world->radius = 9999999;
-
 	// Load the shader program. Make sure you have the correct filepath up top
 	objShader = LoadShaders("../shader.vert", "../shader.frag");
 	cubeShader = LoadShaders("../cubeShader.vert", "../cubeShader.frag");
+	colorShader = LoadShaders("../colorShader.vert", "../colorShader.frag");
 
-	/*for (int i = 0; i < 36; i++) {
+	sphere = new Geometry("../obj/sphere.obj", objShader, glm::vec3());
+	redPoint = new Geometry("../obj/sphere.obj", colorShader, glm::vec3(1.0f, 0.0f, 0.0f));
+	greenPoint = new Geometry("../obj/sphere.obj", colorShader, glm::vec3(0.0f, 1.0f, 0.0f));
+	world = new Transform(glm::mat4(1.0f));
+	
+	for (int i = 0; i < 32; i++) {
+		if (i != 0 && i % 4 == 0) {
+			points[i / 4].push_back(points[i / 4 - 1][3]);
+		}
+		else if (i != 1 && i % 4 == 1) {
+			points[i / 4].push_back(points[i / 4 - 1][3]*2.0f - points[i / 4 - 1][2]);
+		}
+		else if (i == 31) {
+			points[i / 4].push_back(points[0][0]);
 
-		points[i][0] = 1 - (i > 16 ? i - 16 : i) % 16 * 0.125;
-		points[i][1] = 0.0f;
-		points[i][0] = (i > 8 ? (i < 24 ?  i - 2*(i-8) : i - 36) : i) % 16 * 0.125;
-	}*/
+		}
+		else {
+			float x = rand() % 150 - 75;
+			float y = rand() % 150 - 75;
+			float z = rand() % 150 - 75;
+			points[i / 4].push_back(glm::vec3(x, y, z));
+		}
+	}
+
+	for (int i = 0; i < 8; i++) {
+		curve[i] = new Curve(points[i]);
+		world->addChild(curve[i]);
+		anchorTranslations[i] = new Transform(glm::translate(glm::mat4(1.0f), points[i][0]));
+		anchorTranslations[i]->addChild(redPoint);
+		controlTranslations[2 * i] = new Transform(glm::translate(glm::mat4(1.0f), points[i][1]));
+		controlTranslations[2 * i]->addChild(greenPoint);
+		controlTranslations[2 * i + 1] = new Transform(glm::translate(glm::mat4(1.0f), points[i][2]));
+		controlTranslations[2 * i + 1]->addChild(greenPoint);
+		world->addChild(anchorTranslations[i]);
+		world->addChild(controlTranslations[2*i]);
+		world->addChild(controlTranslations[2 * i + 1]);
+	}
+
+	cube = new Cube();
+	world->addChild(cube);
+	//world->addChild(sphere);
+	world->radius = 9999999;
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -185,23 +215,6 @@ void Window::display_callback(GLFWwindow* window)
 
 	world->draw(objShader, Window::V);
 
-	//int numPoints = 36;
-	//// Create and draw the curves for every 4 points
-	//for (int i = 0; (i + 3) < numPoints; i += 3)
-	//{
-	//	// The evaluator with a stride of 3 and an order of 4
-	//	glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 4, &points[i][0]);
-
-	//	// Draw the curve
-	//	glBegin(GL_POINTS);  // Use GL_LINE_STRIP instead to fill the gaps
-	//	{
-	//		for (int i = 0; i < 150; i++)
-	//		{
-	//			glEvalCoord1f(((float)i) / 150.0);
-	//		}
-	//	}
-	//	glEnd();
-	//}
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
 	// Swap buffers
