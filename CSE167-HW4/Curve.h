@@ -23,11 +23,13 @@ private:
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texels;
+	glm::vec3 color;
+	GLuint shader;
 
 	void shiftAndResizeModel();
-	void loadTexture();
 public:
-	Curve(std::vector<glm::vec3> controlPoints);
+	Curve(glm::vec3 point1, glm::vec3 point2, glm::vec3 color, GLuint shader);
+	Curve(std::vector<glm::vec3> controlPoints, glm::vec3 color, GLuint shader);
 	~Curve();
 
 	void update();

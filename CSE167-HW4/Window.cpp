@@ -3,13 +3,13 @@
 const char* window_title = "GLFW Starter Project";
 Geometry *sphere, *redPoint, *greenPoint;
 Cube *cube;
-Curve *curve[8];
+Curve *curves[8], *nbCurves[8];
 Transform *world, *anchorTranslations[8], *controlTranslations[16];
 Transform *armyT[1000];
 GLint Window::objShader, Window::cubeShader, colorShader;
 
 // Default camera parameters
-glm::vec3 Window::camPos(0.0f, 0.0f, 150.0f);		// e  | Position of camera
+glm::vec3 Window::camPos(0.0f, 0.0f, 120.0f);		// e  | Position of camera
 glm::vec3 cam_look_at(0.0f, 0.0f, 0.0f);	// d  | This is where the camera looks at
 glm::vec3 cam_up(0.0f, 1.0f, 0.0f);			// up | What orientation "up" is
 
@@ -60,21 +60,25 @@ void Window::initialize_objects()
 		else if (i != 1 && i % 4 == 1) {
 			points[i / 4].push_back(points[i / 4 - 1][3]*2.0f - points[i / 4 - 1][2]);
 		}
+		else if (i == 30) {
+			points[i / 4].push_back(points[0][0] - (points[0][1] - points[0][0]));
+		}
 		else if (i == 31) {
 			points[i / 4].push_back(points[0][0]);
-
 		}
 		else {
-			float x = rand() % 150 - 75;
-			float y = rand() % 150 - 75;
-			float z = rand() % 150 - 75;
+			float x = rand() % 100 - 50;
+			float y = rand() % 100 - 50;
+			float z = rand() % 100 - 50;
 			points[i / 4].push_back(glm::vec3(x, y, z));
 		}
 	}
 
 	for (int i = 0; i < 8; i++) {
-		curve[i] = new Curve(points[i]);
-		world->addChild(curve[i]);
+		curves[i] = new Curve(points[i], glm::vec3(0.0f, 0.0f, 0.0f), colorShader);
+		nbCurves[i] = new Curve(points[i][2], points[(i + 1) % 8][1], glm::vec3(1.0f, 1.0f, 0.0f), colorShader);
+		world->addChild(curves[i]);
+		world->addChild(nbCurves[i]);
 		anchorTranslations[i] = new Transform(glm::translate(glm::mat4(1.0f), points[i][0]));
 		anchorTranslations[i]->addChild(redPoint);
 		controlTranslations[2 * i] = new Transform(glm::translate(glm::mat4(1.0f), points[i][1]));
