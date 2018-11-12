@@ -40,6 +40,7 @@ glm::mat4 Window::P;
 glm::mat4 Window::V;
 
 std::vector<glm::vec3> points[8];
+int currentPoint = 0;
 
 void Window::initialize_objects()
 {
@@ -230,6 +231,10 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 	// Check for a key press
 	if (action == GLFW_PRESS)
 	{
+		int modifier = mods == GLFW_MOD_SHIFT ? -1 : 1;
+		int pairIndex = (currentPoint - 1) % 8;
+		if (pairIndex == -1)
+			pairIndex = 7;
 		float cameraSpeed = 2.5f;
 		glm::vec3 camDir = glm::normalize(cam_look_at - camPos);
 		switch (key) {
@@ -272,6 +277,41 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			camPos += glm::normalize(glm::cross(camDir, cam_up)) * cameraSpeed;
 			cam_look_at = camPos + camDir;
 			V = glm::lookAt(camPos, cam_look_at, cam_up);
+			break;
+		case GLFW_KEY_RIGHT:
+			currentPoint = (currentPoint + 1) % 8;
+			break;
+		case GLFW_KEY_LEFT:
+			currentPoint = (currentPoint - 1) % 8;
+			if (currentPoint < 0)
+				currentPoint = 7;
+			break;
+		case GLFW_KEY_X:
+			points[currentPoint][1].x += modifier * 5;
+			points[pairIndex][2].x -= modifier * 5;
+			*curves[currentPoint] = *(new Curve(points[currentPoint], glm::vec3(0.0f, 0.0f, 0.0f), colorShader));
+			*curves[pairIndex] = *(new Curve(points[pairIndex], glm::vec3(0.0f, 0.0f, 0.0f), colorShader));
+			*nbCurves[pairIndex] = *(new Curve(points[pairIndex][2], points[currentPoint][1], glm::vec3(1.0f, 1.0f, 0.0f), colorShader));
+			controlTranslations[2 * pairIndex + 1]->M = glm::translate(controlTranslations[2* pairIndex +1]->M, glm::vec3(-modifier * 5, 0.0f, 0.0f));
+			controlTranslations[(2 * pairIndex + 2)%16]->M = glm::translate(controlTranslations[(2 * pairIndex + 2) % 16]->M, glm::vec3(modifier * 5, 0.0f, 0.0f));
+			break;
+		case GLFW_KEY_Y:
+			points[currentPoint][1].y += modifier * 5;
+			points[pairIndex][2].y -= modifier * 5;
+			*curves[currentPoint] = *(new Curve(points[currentPoint], glm::vec3(0.0f, 0.0f, 0.0f), colorShader));
+			*curves[pairIndex] = *(new Curve(points[pairIndex], glm::vec3(0.0f, 0.0f, 0.0f), colorShader));
+			*nbCurves[pairIndex] = *(new Curve(points[pairIndex][2], points[currentPoint][1], glm::vec3(1.0f, 1.0f, 0.0f), colorShader));
+			controlTranslations[2 * pairIndex + 1]->M = glm::translate(controlTranslations[2 * pairIndex + 1]->M, glm::vec3(0.0f, -modifier * 5, 0.0f));
+			controlTranslations[(2 * pairIndex + 2) % 16]->M = glm::translate(controlTranslations[(2 * pairIndex + 2) % 16]->M, glm::vec3(0.0f, modifier * 5, 0.0f));
+			break;
+		case GLFW_KEY_Z:
+			points[currentPoint][1].z += modifier * 5;
+			points[pairIndex][2].z -= modifier * 5;
+			*curves[currentPoint] = *(new Curve(points[currentPoint], glm::vec3(0.0f, 0.0f, 0.0f), colorShader));
+			*curves[pairIndex] = *(new Curve(points[pairIndex], glm::vec3(0.0f, 0.0f, 0.0f), colorShader));
+			*nbCurves[pairIndex] = *(new Curve(points[pairIndex][2], points[currentPoint][1], glm::vec3(1.0f, 1.0f, 0.0f), colorShader));
+			controlTranslations[2 * pairIndex + 1]->M = glm::translate(controlTranslations[2 * pairIndex + 1]->M, glm::vec3(0.0f, 0.0f, -modifier * 5));
+			controlTranslations[(2 * pairIndex + 2) % 16]->M = glm::translate(controlTranslations[(2 * pairIndex + 2) % 16]->M, glm::vec3(0.0f, 0.0f, modifier * 5));
 			break;
 		}		
 	}
