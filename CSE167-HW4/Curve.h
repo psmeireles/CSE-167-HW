@@ -39,7 +39,7 @@ public:
 	void draw(GLuint shaderProgram, glm::mat4 C);
 	void updateMinMaxCoordinates(float x, float y, float z);
 	void shiftAndResizeSphere();
-
+	glm::vec3 getPoint(int i);
 	glm::mat4 toWorld;
 
 	GLuint VBO, VAO, EBO, normalBuffer, texBuffer;

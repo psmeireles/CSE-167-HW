@@ -4,9 +4,10 @@ const char* window_title = "GLFW Starter Project";
 Geometry *sphere, *redPoint, *greenPoint;
 Cube *cube;
 Curve *curves[8], *nbCurves[8];
-Transform *world, *anchorTranslations[8], *controlTranslations[16];
+Transform *world, *anchorTranslations[8], *controlTranslations[16], *sphereTranslation, *sphereScale;
 Transform *armyT[1000];
 GLint Window::objShader, Window::cubeShader, colorShader;
+glm::vec3 lastSpherePos;
 
 // Default camera parameters
 glm::vec3 Window::camPos(0.0f, 0.0f, 120.0f);		// e  | Position of camera
@@ -41,6 +42,7 @@ glm::mat4 Window::V;
 
 std::vector<glm::vec3> points[8];
 int currentPoint = 0;
+int sphereMovCounter = 1;
 
 void Window::initialize_objects()
 {
@@ -90,10 +92,15 @@ void Window::initialize_objects()
 		world->addChild(controlTranslations[2*i]);
 		world->addChild(controlTranslations[2 * i + 1]);
 	}
-
+	
+	sphereTranslation = new Transform(glm::translate(glm::mat4(1.0f), points[0][0]));
+	lastSpherePos = points[0][0];
+	sphereScale = new Transform(glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)));
+	sphereScale->addChild(sphere);
+	sphereTranslation->addChild(sphereScale);
 	cube = new Cube();
 	world->addChild(cube);
-	//world->addChild(sphere);
+	world->addChild(sphereTranslation);
 	world->radius = 9999999;
 }
 
@@ -211,6 +218,11 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 void Window::idle_callback()
 {
+	glm::vec3 newSpherePos = curves[sphereMovCounter / 151]->getPoint(sphereMovCounter % 151);
+	sphereTranslation->M = glm::translate(sphereTranslation->M, -lastSpherePos);
+	sphereTranslation->M = glm::translate(sphereTranslation->M, newSpherePos);
+	lastSpherePos = newSpherePos;
+	sphereMovCounter = (sphereMovCounter + 1)%(8*151);
 }
 
 void Window::display_callback(GLFWwindow* window)

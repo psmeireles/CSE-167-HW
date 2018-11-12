@@ -258,6 +258,10 @@ glm::vec3 toBezier(float i, glm::vec3 P0, glm::vec3 P1, glm::vec3 P2, glm::vec3 
 	return (P0 * one_minus_t2 * one_minus_t + P1 * 3.0f * t * one_minus_t2 + P2 * 3.0f * t2 * one_minus_t + P3 * t2 * t);
 }
 
+glm::vec3 Curve::getPoint(int i) {
+	return this->vertices[i];
+}
+
 void Curve::shiftAndResizeSphere()
 {
 
