@@ -23,6 +23,7 @@ private:
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texels;
+	std::vector<float> distanceCovered;
 	glm::vec3 color;
 	GLuint shader;
 
@@ -33,14 +34,15 @@ public:
 	~Curve();
 
 	void update();
-	void spin(float);
 	void scale(double);
 	void parse(const char* filepath);
 	void draw(GLuint shaderProgram, glm::mat4 C);
 	void updateMinMaxCoordinates(float x, float y, float z);
 	void shiftAndResizeSphere();
+	int getNextPointIndex(int i, float *dist);
 	glm::vec3 getPoint(int i);
 	glm::mat4 toWorld;
+	float totalDistance;
 
 	GLuint VBO, VAO, EBO, normalBuffer, texBuffer;
 };

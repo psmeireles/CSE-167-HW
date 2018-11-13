@@ -59,7 +59,15 @@ Curve::Curve(vector<glm::vec3> controlPoints, glm::vec3 color, GLuint shader)
 	for (int i = 0; i < 151; i++) {
 		this->vertices.push_back(toBezier(i/150.0f, controlPoints[0], controlPoints[1], controlPoints[2], controlPoints[3]));
 		this->indices.push_back(i);
+		if (i == 0)
+			this->distanceCovered.push_back(0.0f);
+		else {
+			glm::vec3 d = (vertices[i] - vertices[i - 1]);
+			float dist = glm::length(d);
+			this->distanceCovered.push_back(dist+distanceCovered[i - 1]);
+		}
 	}
+	totalDistance = distanceCovered[150];
 
 	// Create array object and buffers. Remember to delete your buffers when the object is destroyed!
 	glGenVertexArrays(1, &VAO);
@@ -256,6 +264,26 @@ glm::vec3 toBezier(float i, glm::vec3 P0, glm::vec3 P1, glm::vec3 P2, glm::vec3 
 	float one_minus_t = 1.0 - t;
 	float one_minus_t2 = one_minus_t * one_minus_t;
 	return (P0 * one_minus_t2 * one_minus_t + P1 * 3.0f * t * one_minus_t2 + P2 * 3.0f * t2 * one_minus_t + P3 * t2 * t);
+}
+
+int Curve::getNextPointIndex(int i, float *dist) {
+	for (int j = i; j < distanceCovered.size(); j++) {
+		float coveredDistance = distanceCovered[j] - distanceCovered[i];
+		if ( coveredDistance > *dist) {
+			if (coveredDistance - *dist < *dist - (distanceCovered[j - 1] - distanceCovered[i]))
+				if (j == i)
+					return j + 1;
+				else
+					return j;
+			else
+				if (j - 1 == i)
+					return j;
+				else
+					return j - 1;
+		}
+	}
+	*dist -= distanceCovered[distanceCovered.size() - 1] - distanceCovered[i];
+	return -1;
 }
 
 glm::vec3 Curve::getPoint(int i) {

@@ -42,7 +42,9 @@ glm::mat4 Window::V;
 
 std::vector<glm::vec3> points[8];
 int currentPoint = 0;
-int sphereMovCounter = 1;
+int sphereCurve = 0;
+int spherePoint = 0;
+float curvesLength = 0.0f;
 
 void Window::initialize_objects()
 {
@@ -79,6 +81,7 @@ void Window::initialize_objects()
 
 	for (int i = 0; i < 8; i++) {
 		curves[i] = new Curve(points[i], glm::vec3(0.0f, 0.0f, 0.0f), colorShader);
+		curvesLength += curves[i]->totalDistance;
 		nbCurves[i] = new Curve(points[i][2], points[(i + 1) % 8][1], glm::vec3(1.0f, 1.0f, 0.0f), colorShader);
 		world->addChild(curves[i]);
 		world->addChild(nbCurves[i]);
@@ -218,11 +221,25 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 void Window::idle_callback()
 {
-	glm::vec3 newSpherePos = curves[sphereMovCounter / 151]->getPoint(sphereMovCounter % 151);
+	float distance = curvesLength / (8 * 151);
+	int nextPointIndex = curves[sphereCurve]->getNextPointIndex(spherePoint, &distance);
+	glm::vec3 newSpherePos;
+	if (nextPointIndex == -1) {
+		sphereCurve = (sphereCurve + 1) % 8;
+		spherePoint = 0;
+		nextPointIndex = curves[sphereCurve]->getNextPointIndex(spherePoint, &distance);
+	}
+	newSpherePos = curves[sphereCurve]->getPoint(nextPointIndex);
+	spherePoint = nextPointIndex;
 	sphereTranslation->M = glm::translate(sphereTranslation->M, -lastSpherePos);
 	sphereTranslation->M = glm::translate(sphereTranslation->M, newSpherePos);
 	lastSpherePos = newSpherePos;
-	sphereMovCounter = (sphereMovCounter + 1)%(8*151);
+
+	/*glm::vec3 newSpherePos = curves[sphereMovCounter / 151]->getPoint(sphereMovCounter % 151);
+	sphereTranslation->M = glm::translate(sphereTranslation->M, -lastSpherePos);
+	sphereTranslation->M = glm::translate(sphereTranslation->M, newSpherePos);
+	lastSpherePos = newSpherePos;
+	sphereMovCounter = (sphereMovCounter + 1)%(8*151);*/
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -301,8 +318,10 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		case GLFW_KEY_X:
 			points[currentPoint][1].x += modifier * 5;
 			points[pairIndex][2].x -= modifier * 5;
+			curvesLength -= curves[currentPoint]->totalDistance + curves[pairIndex]->totalDistance;
 			*curves[currentPoint] = *(new Curve(points[currentPoint], glm::vec3(0.0f, 0.0f, 0.0f), colorShader));
 			*curves[pairIndex] = *(new Curve(points[pairIndex], glm::vec3(0.0f, 0.0f, 0.0f), colorShader));
+			curvesLength += curves[currentPoint]->totalDistance + curves[pairIndex]->totalDistance;
 			*nbCurves[pairIndex] = *(new Curve(points[pairIndex][2], points[currentPoint][1], glm::vec3(1.0f, 1.0f, 0.0f), colorShader));
 			controlTranslations[2 * pairIndex + 1]->M = glm::translate(controlTranslations[2* pairIndex +1]->M, glm::vec3(-modifier * 5, 0.0f, 0.0f));
 			controlTranslations[(2 * pairIndex + 2)%16]->M = glm::translate(controlTranslations[(2 * pairIndex + 2) % 16]->M, glm::vec3(modifier * 5, 0.0f, 0.0f));
@@ -310,8 +329,10 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		case GLFW_KEY_Y:
 			points[currentPoint][1].y += modifier * 5;
 			points[pairIndex][2].y -= modifier * 5;
+			curvesLength -= curves[currentPoint]->totalDistance + curves[pairIndex]->totalDistance;
 			*curves[currentPoint] = *(new Curve(points[currentPoint], glm::vec3(0.0f, 0.0f, 0.0f), colorShader));
 			*curves[pairIndex] = *(new Curve(points[pairIndex], glm::vec3(0.0f, 0.0f, 0.0f), colorShader));
+			curvesLength += curves[currentPoint]->totalDistance + curves[pairIndex]->totalDistance;
 			*nbCurves[pairIndex] = *(new Curve(points[pairIndex][2], points[currentPoint][1], glm::vec3(1.0f, 1.0f, 0.0f), colorShader));
 			controlTranslations[2 * pairIndex + 1]->M = glm::translate(controlTranslations[2 * pairIndex + 1]->M, glm::vec3(0.0f, -modifier * 5, 0.0f));
 			controlTranslations[(2 * pairIndex + 2) % 16]->M = glm::translate(controlTranslations[(2 * pairIndex + 2) % 16]->M, glm::vec3(0.0f, modifier * 5, 0.0f));
@@ -319,8 +340,10 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		case GLFW_KEY_Z:
 			points[currentPoint][1].z += modifier * 5;
 			points[pairIndex][2].z -= modifier * 5;
+			curvesLength -= curves[currentPoint]->totalDistance + curves[pairIndex]->totalDistance;
 			*curves[currentPoint] = *(new Curve(points[currentPoint], glm::vec3(0.0f, 0.0f, 0.0f), colorShader));
 			*curves[pairIndex] = *(new Curve(points[pairIndex], glm::vec3(0.0f, 0.0f, 0.0f), colorShader));
+			curvesLength += curves[currentPoint]->totalDistance + curves[pairIndex]->totalDistance;
 			*nbCurves[pairIndex] = *(new Curve(points[pairIndex][2], points[currentPoint][1], glm::vec3(1.0f, 1.0f, 0.0f), colorShader));
 			controlTranslations[2 * pairIndex + 1]->M = glm::translate(controlTranslations[2 * pairIndex + 1]->M, glm::vec3(0.0f, 0.0f, -modifier * 5));
 			controlTranslations[(2 * pairIndex + 2) % 16]->M = glm::translate(controlTranslations[(2 * pairIndex + 2) % 16]->M, glm::vec3(0.0f, 0.0f, modifier * 5));
