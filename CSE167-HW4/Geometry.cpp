@@ -104,8 +104,8 @@ void Geometry::draw(GLuint shaderProgram, glm::mat4 C) {
 	glUseProgram(shader);
 
 	// Calculate the combination of the model and view (camera inverse) matrices
-	glm::mat4 model = toWorld;
-	glm::mat4 view = C;
+	glm::mat4 model = glm::inverse(Window::V)*C*toWorld;
+	glm::mat4 view = Window::V;
 
 	// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
