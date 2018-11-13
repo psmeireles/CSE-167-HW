@@ -45,6 +45,7 @@ int currentPoint = 0;
 int sphereCurve = 0;
 int spherePoint = 0;
 float curvesLength = 0.0f;
+bool sphereIsRiding = true;
 
 void Window::initialize_objects()
 {
@@ -221,19 +222,27 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 void Window::idle_callback()
 {
+	
 	float distance = curvesLength / (8 * 151);
-	int nextPointIndex = curves[sphereCurve]->getNextPointIndex(spherePoint, &distance);
+	int nextPointIndex;
 	glm::vec3 newSpherePos;
-	if (nextPointIndex == -1) {
-		sphereCurve = (sphereCurve + 1) % 8;
-		spherePoint = 0;
+	if (sphereIsRiding) {
 		nextPointIndex = curves[sphereCurve]->getNextPointIndex(spherePoint, &distance);
+		if (nextPointIndex == -1) {
+			sphereCurve = (sphereCurve + 1) % 8;
+			spherePoint = 0;
+			nextPointIndex = curves[sphereCurve]->getNextPointIndex(spherePoint, &distance);
+		}
+	}
+	else {
+		nextPointIndex = spherePoint;
 	}
 	newSpherePos = curves[sphereCurve]->getPoint(nextPointIndex);
 	spherePoint = nextPointIndex;
 	sphereTranslation->M = glm::translate(sphereTranslation->M, -lastSpherePos);
 	sphereTranslation->M = glm::translate(sphereTranslation->M, newSpherePos);
 	lastSpherePos = newSpherePos;
+	
 
 	/*glm::vec3 newSpherePos = curves[sphereMovCounter / 151]->getPoint(sphereMovCounter % 151);
 	sphereTranslation->M = glm::translate(sphereTranslation->M, -lastSpherePos);
@@ -284,9 +293,6 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 				P = glm::perspective(fov, ratio, nearDist, farDist);
 
 			debugMode = !debugMode;
-		case GLFW_KEY_0:
-			toggleModel = !toggleModel;
-			break;
 		case GLFW_KEY_W:
 			camPos += cameraSpeed*camDir;
 			cam_look_at = camPos + camDir;
@@ -347,6 +353,9 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			*nbCurves[pairIndex] = *(new Curve(points[pairIndex][2], points[currentPoint][1], glm::vec3(1.0f, 1.0f, 0.0f), colorShader));
 			controlTranslations[2 * pairIndex + 1]->M = glm::translate(controlTranslations[2 * pairIndex + 1]->M, glm::vec3(0.0f, 0.0f, -modifier * 5));
 			controlTranslations[(2 * pairIndex + 2) % 16]->M = glm::translate(controlTranslations[(2 * pairIndex + 2) % 16]->M, glm::vec3(0.0f, 0.0f, modifier * 5));
+			break;
+		case GLFW_KEY_P:
+			sphereIsRiding = !sphereIsRiding;
 			break;
 		}		
 	}
