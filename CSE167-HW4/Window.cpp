@@ -46,6 +46,8 @@ int sphereCurve = 0;
 int spherePoint = 0;
 float curvesLength = 0.0f;
 bool sphereIsRiding = true;
+float lastTime = 0.0f;
+float distance = 0.0f;
 
 void Window::initialize_objects()
 {
@@ -223,7 +225,15 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 void Window::idle_callback()
 {
 	
-	float distance = curvesLength / (8 * 151);
+	float velocity = 0.0f;
+	if (sphereIsRiding) {
+		velocity = curvesLength / (8 * 3);
+	}
+	float now = glfwGetTime();
+	float deltaT = now - lastTime;
+	lastTime = now;
+	distance += velocity * deltaT;
+	printf("%f\n", distance);
 	int nextPointIndex;
 	glm::vec3 newSpherePos;
 	if (sphereIsRiding) {
@@ -237,7 +247,19 @@ void Window::idle_callback()
 	else {
 		nextPointIndex = spherePoint;
 	}
-	newSpherePos = curves[sphereCurve]->getPoint(nextPointIndex);
+
+	glm::vec3 pointBefore = curves[sphereCurve]->getPoint(nextPointIndex);
+	glm::vec3 pointAfter;
+	if (nextPointIndex == 150) {
+		pointAfter = curves[sphereCurve+1]->getPoint(1);
+	}
+	else {
+		pointAfter = curves[sphereCurve]->getPoint(nextPointIndex + 1);
+	}
+	float adjacentPointsD = glm::abs(glm::distance(pointAfter, pointBefore));
+	newSpherePos = (pointBefore*(adjacentPointsD - distance) + pointAfter * distance) / adjacentPointsD;
+
+	//newSpherePos = curves[sphereCurve]->getPoint(nextPointIndex);
 	spherePoint = nextPointIndex;
 	sphereTranslation->M = glm::translate(sphereTranslation->M, -lastSpherePos);
 	sphereTranslation->M = glm::translate(sphereTranslation->M, newSpherePos);

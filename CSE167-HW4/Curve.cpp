@@ -270,16 +270,8 @@ int Curve::getNextPointIndex(int i, float *dist) {
 	for (int j = i; j < distanceCovered.size(); j++) {
 		float coveredDistance = distanceCovered[j] - distanceCovered[i];
 		if ( coveredDistance > *dist) {
-			if (coveredDistance - *dist < *dist - (distanceCovered[j - 1] - distanceCovered[i]))
-				if (j == i)
-					return j + 1;
-				else
-					return j;
-			else
-				if (j - 1 == i)
-					return j;
-				else
-					return j - 1;
+			*dist -= distanceCovered[j - 1] - distanceCovered[i];
+			return j-1;
 		}
 	}
 	*dist -= distanceCovered[distanceCovered.size() - 1] - distanceCovered[i];
