@@ -227,7 +227,7 @@ void Window::idle_callback()
 	
 	float velocity = 0.0f;
 	if (sphereIsRiding) {
-		velocity = curvesLength / (8 * 3);
+		velocity = curvesLength / (8*3);
 	}
 	float now = glfwGetTime();
 	float deltaT = now - lastTime;
@@ -238,7 +238,7 @@ void Window::idle_callback()
 	glm::vec3 newSpherePos;
 	if (sphereIsRiding) {
 		nextPointIndex = curves[sphereCurve]->getNextPointIndex(spherePoint, &distance);
-		if (nextPointIndex == -1) {
+		while (nextPointIndex == -1) {
 			sphereCurve = (sphereCurve + 1) % 8;
 			spherePoint = 0;
 			nextPointIndex = curves[sphereCurve]->getNextPointIndex(spherePoint, &distance);
