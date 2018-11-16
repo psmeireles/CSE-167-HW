@@ -233,7 +233,7 @@ void Window::idle_callback()
 	float deltaT = now - lastTime;
 	lastTime = now;
 	distance += velocity * deltaT;
-	printf("%f\n", distance);
+	//printf("%f\n", distance);
 	int nextPointIndex;
 	glm::vec3 newSpherePos;
 	if (sphereIsRiding) {
