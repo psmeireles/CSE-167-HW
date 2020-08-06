@@ -2,9 +2,9 @@
 
 const char* window_title = "GLFW Starter Project";
 Cube cube(5.0f);
-OBJObject bunny = OBJObject("../obj/bunny.obj");
-OBJObject bear = OBJObject("../obj/bear.obj");
-OBJObject dragon = OBJObject("../obj/dragon.obj");
+OBJObject bunny = OBJObject("../../obj/bunny.obj");
+OBJObject bear = OBJObject("../../obj/bear.obj");
+OBJObject dragon = OBJObject("../../obj/dragon.obj");
 OBJObject *currentOBJ = &bunny;
 float pointSize = 1.0f;
 int Window::width;
