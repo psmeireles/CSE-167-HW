@@ -1,10 +1,10 @@
-﻿  OBJObject.cpp
-  Window.cpp
-c:\users\pedro\desktop\ucsd\cse167\cse-167-hw\cse167-hw1\window.cpp(72): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+﻿  Cube.cpp
   main.cpp
+  OBJObject.cpp
+  Window.cpp
+D:\Git\CSE-167-HW\CSE167-HW1\Window.cpp(72,25): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
   Generating code
-  0 of 171 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  Previous IPDB was built with incompatible compiler, fall back to full compilation.
+  All 153 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
-  GLFWStarterProject.vcxproj -> C:\Users\Pedro\Desktop\UCSD\CSE167\CSE-167-HW\CSE167-HW1\x64\Release\CSE167-HW1.exe
+  GLFWStarterProject.vcxproj -> D:\Git\CSE-167-HW\CSE167-HW1\x64\Release\CSE167-HW1.exe
