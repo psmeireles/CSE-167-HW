@@ -1,7 +1,1 @@
-﻿  Cube.cpp
-  main.cpp
-  OBJObject.cpp
-  Window.cpp
-D:\Git\CSE-167-HW\CSE167-HW1\Window.cpp(72,25): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-  Generating Code...
-  GLFWStarterProject.vcxproj -> D:\Git\CSE-167-HW\CSE167-HW1\x64\Debug\CSE167-HW1.exe
+﻿  GLFWStarterProject.vcxproj -> D:\Git\CSE-167-HW\CSE167-HW1\x64\Debug\CSE167-HW1.exe
