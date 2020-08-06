@@ -27,9 +27,9 @@ glm::mat4 Window::V;
 void Window::initialize_objects()
 {
 
-	bunny = new OBJObject("../obj/bunny.obj", Material(glm::vec3(1.0f, 0.41f, 0.7f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 32.0f));
-	bear = new OBJObject("../obj/bear.obj", Material(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.41f, 0.7f), glm::vec3(0.0f, 0.0f, 0.0f), 0.0f));
-	dragon = new OBJObject("../obj/dragon.obj", Material(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.41f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 32.0f));
+	bunny = new OBJObject("../../obj/bunny.obj", Material(glm::vec3(1.0f, 0.41f, 0.7f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 32.0f));
+	bear = new OBJObject("../../obj/bear.obj", Material(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.41f, 0.7f), glm::vec3(0.0f, 0.0f, 0.0f), 0.0f));
+	dragon = new OBJObject("../../obj/dragon.obj", Material(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.41f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 32.0f));
 	currentOBJ = bunny;
 
 	light = new PointLight();

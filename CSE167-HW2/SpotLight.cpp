@@ -18,7 +18,7 @@ SpotLight::SpotLight()
 	constant = 1.0f;
 	linear = 0.12f;
 
-	parse("../obj/sphere.obj");
+	parse("../../obj/sphere.obj");
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
