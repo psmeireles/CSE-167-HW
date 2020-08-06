@@ -149,7 +149,7 @@ void Transform::parseSphere()
 	char c1, c2;
 	GLfloat x, y, z;
 
-	FILE *fp = fopen("../obj/sphere.obj", "rb");
+	FILE *fp = fopen("../../obj/sphere.obj", "rb");
 	if (fp == NULL) {
 		printf("error loading file\n");
 		system("pause");
